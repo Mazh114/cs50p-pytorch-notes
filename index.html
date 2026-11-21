@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS50P × PyTorch · 双语学习打卡</title>
+<style>
+:root{--bg:#f8fafc;--card:#ffffff;--ink:#1e293b;--mut:#64748b;--line:#e2e8f0;--acc:#059669;--acc2:#d1fae5;--sb:#0f172a;--sb2:#1e293b;--code:#0f172a;}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.65}
+#topbar{position:fixed;top:0;left:0;right:0;height:56px;background:var(--sb);color:#fff;display:flex;align-items:center;gap:12px;padding:0 16px;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+#burger{background:none;border:1px solid #475569;color:#fff;font-size:18px;width:38px;height:34px;border-radius:8px;cursor:pointer}
+#topbar h1{font-size:17px;font-weight:600;letter-spacing:.5px}
+#topbar .spacer{flex:1}
+#userbox{display:flex;align-items:center;gap:8px;font-size:14px}
+#userbox select{padding:4px 8px;border-radius:8px;border:1px solid #475569;background:#1e293b;color:#fff;font-size:13px;max-width:140px}
+#userbox button{padding:4px 10px;border-radius:8px;border:1px solid #475569;background:#1e293b;color:#fff;cursor:pointer;font-size:13px}
+#layout{display:flex;padding-top:56px;min-height:100vh}
+#sidebar{width:280px;background:var(--sb);color:#cbd5e1;position:fixed;top:56px;bottom:0;left:0;overflow-y:auto;transition:transform .25s ease;z-index:40;padding:14px 10px}
+#layout.hide #sidebar{transform:translateX(-100%)}
+#layout.hide main{margin-left:0}
+main{margin-left:280px;padding:28px 34px 80px;max-width:900px;transition:margin-left .25s ease;flex:1}
+.navlink{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:9px 12px;border-radius:10px;color:#cbd5e1;text-decoration:none;font-size:14px;margin:2px 0}
+.navlink:hover{background:#1e293b;color:#fff}
+.navlink.active{background:#1e293b;color:#fff;border-left:3px solid var(--acc)}
+.badge{font-size:11px;background:#334155;color:#e2e8f0;padding:2px 7px;border-radius:99px;white-space:nowrap}
+.badge.done{background:var(--acc);color:#fff}
+#sidefoot{margin-top:16px;padding:12px;border-top:1px solid #1e293b;font-size:12px}
+#sidefoot .bar{margin:8px 0}
+.bar{height:8px;background:#334155;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--acc);width:0;transition:width .3s}
+.mini{color:#64748b;font-size:12px}
+#sidefoot .btns{display:flex;gap:6px;margin-top:8px}
+#sidefoot .btns button{flex:1;padding:5px 4px;font-size:12px;border-radius:8px;border:1px solid #334155;background:#1e293b;color:#cbd5e1;cursor:pointer}
+section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:26px;scroll-margin-top:70px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
+.chhead{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;border-bottom:2px solid var(--line);padding-bottom:14px;margin-bottom:16px}
+.chhead h2{font-size:20px}
+.chhead .sub{color:var(--mut);font-size:13px}
+.bigwrap{margin-left:auto;text-align:right}
+.block{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0;background:#fff}
+.blockhead{display:flex;align-items:flex-start;gap:10px}
+.blockhead h3{font-size:15px;flex:1;font-weight:600}
+.ck{flex-shrink:0;width:26px;height:26px;border-radius:8px;border:2px solid #cbd5e1;background:#fff;cursor:pointer;font-size:15px;line-height:1;color:#fff;display:flex;align-items:center;justify-content:center;padding:0}
+.ck:hover{border-color:var(--acc)}
+.ck.on{background:var(--acc);border-color:var(--acc)}
+.ck.on:after{content:"✓"}
+.ck.big{width:34px;height:34px;font-size:19px;border-radius:10px}
+.when{font-size:11px;color:var(--mut);margin-top:2px}
+.itembody{margin-top:8px;font-size:14px}
+.itembody p{margin:6px 0}
+.itembody ul,.itembody ol{margin:6px 0 6px 20px}
+code{background:#f1f5f9;padding:1px 6px;border-radius:6px;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13px}
+pre{background:var(--code);color:#e2e8f0;padding:14px 16px;border-radius:12px;overflow-x:auto;margin:10px 0;font-size:13px;line-height:1.55}
+pre code{background:none;padding:0;color:inherit}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13px}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+th{background:#f1f5f9}
+details{border:1px dashed #cbd5e1;border-radius:10px;padding:8px 12px;margin:8px 0;background:#f8fafc}
+summary{cursor:pointer;font-size:13px;color:var(--acc);font-weight:600}
+.exq{font-size:14px}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:99px;background:var(--acc2);color:#065f46;margin-right:6px}
+#modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;z-index:100}
+#modal.show{display:flex}
+#modal .card{background:#fff;border-radius:16px;padding:28px;width:min(90vw,360px);text-align:center}
+#modal input{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:15px;margin:14px 0}
+#modal button{padding:8px 18px;border:none;border-radius:10px;background:var(--acc);color:#fff;font-size:14px;cursor:pointer;margin:0 4px}
+#modal button.ghost{background:#e2e8f0;color:var(--ink)}
+#foot{color:var(--mut);font-size:12px;text-align:center;margin-top:30px}
+@media(max-width:900px){
+ main{margin-left:0!important;padding:20px 16px 60px}
+ #sidebar{box-shadow:4px 0 16px rgba(0,0,0,.35)}
+}
+</style>
+</head>
+<body>
+<header id="topbar">
+ <button id="burger" title="收起/展开目录 / toggle sidebar">☰</button>
+ <h1>CS50P × PyTorch · 双语学习打卡 Bilingual Study Check-in</h1>
+ <div class="spacer"></div>
+ <div id="userbox">
+  <span id="uname" style="opacity:.85"></span>
+  <select id="usel"></select>
+  <button id="uadd">+ 用户</button>
+ </div>
+</header>
+<div id="layout">
+ <nav id="sidebar">
+  <div id="navlist"></div>
+  <div id="sidefoot">
+   <div>总进度 Overall <span class="badge" data-badge="ALL">0/0</span></div>
+   <div class="bar" data-bar="ALL"><i></i></div>
+   <div class="mini">数据保存在本浏览器 localStorage，按用户分开存储。<br>Progress is stored per user in this browser.</div>
+   <div class="btns">
+    <button id="exp">导出备份 Export</button>
+    <button id="imp">导入 Import</button>
+    <input type="file" id="impfile" accept=".json" style="display:none">
+   </div>
+  </div>
+ </nav>
+ <main id="main"></main>
+</div>
+<div id="modal"><div class="card">
+ <h2 style="font-size:18px">欢迎 / Welcome</h2>
+ <p style="font-size:13px;color:#64748b;margin-top:6px">输入你的名字开始打卡，每位用户的进度分开保存。<br>Enter your name; each user's progress is saved separately.</p>
+ <input id="mname" placeholder="你的名字 / your name">
+ <button id="mok">开始 Start</button>
+ <button id="mcancel" class="ghost" style="display:none">取消 Cancel</button>
+</div></div>
+<div id="foot">CS50P《Python 编程入门》双语学习页 · 面向 PyTorch · 打卡数据保存在本地浏览器</div>
+<script>
+const KEY="cs50p_pytorch_notes_v1";
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{users:{},current:null}}catch(e){return{users:{},current:null}}}
+let S=load();
+function save(){localStorage.setItem(KEY,JSON.stringify(S))}
+function today(){const d=new Date();return d.toISOString().slice(0,10)}
+
+/* ============ 内容数据 CONTENT DATA ============ */
+const CH=[
+{id:"ch0",num:"第 0 讲",title:"环境与工具 Environment & Tools",big:"第 0 讲打卡",blocks:[
+ {id:"ch0-k1",t:"终端常用命令 / Terminal basics",h:`
+  <table><tr><th>命令 Command</th><th>作用 What it does</th></tr>
+  <tr><td><code>pwd</code></td><td>我在哪个目录 / print working directory</td></tr>
+  <tr><td><code>ls</code></td><td>列出文件 / list files</td></tr>
+  <tr><td><code>cd 路径</code></td><td>切换目录 / change directory</td></tr>
+  <tr><td><code>python 文件.py</code></td><td>运行脚本 / run a script</td></tr>
+  <tr><td><code>Ctrl-C</code></td><td>终止卡住的程序 / kill a stuck program</td></tr></table>`},
+ {id:"ch0-k2",t:"虚拟环境 .venv / The virtual environment",h:`
+  <p>A <strong>virtual environment (虚拟环境)</strong> is an isolated, self-contained Python setup — its own interpreter and its own installed libraries, so experiments never pollute the system Python.</p>
+  <pre><code>cd /Users/mzh24/agent/ali/cs50
+source .venv/bin/activate   # prompt shows (.venv) / 提示符出现 (.venv)
+python pytorch_check.py     # run / 运行
+pip install 库名            # install a library / 装新库</code></pre>`},
+ {id:"ch0-k3",t:"REPL 试验场",h:`
+  <p><strong>REPL</strong> = Read–Evaluate–Print Loop (读取-求值-打印循环). Type a line, see the result instantly — the fastest way to try out syntax. 终端输入 <code>python</code> 回车进入 <code>&gt;&gt;&gt;</code> 交互模式；<code>exit()</code> 退出。</p>`},
+ {id:"ch0-k4",t:"调试三板斧 / Debugging in three moves",h:`
+  <ol><li><code>print()</code> 打印中间值 / print intermediate values</li>
+  <li>Traceback <strong>自下而上读 / read bottom-up</strong>：先看异常类型和消息，再找第一处属于自己文件的行号</li>
+  <li>缩小范围 / isolate：把可疑代码单独拷到一个新文件里跑 / copy suspicious code into a scratch file and run it</li></ol>`}],
+ex:[]},
+{id:"ch1",num:"第 1 讲",title:"函数与变量 Functions & Variables",big:"第 1 讲打卡",blocks:[
+ {id:"ch1-k1",t:"Function 与 Abstraction / Functions and abstraction",h:`
+  <p>"A function is like a <strong>box with inputs and an output</strong>: you feed values in (the <strong>arguments (实参)</strong>), it hands a value back (the <strong>return value (返回值)</strong>). You never need to know what's inside to use it."</p>
+  <p>这就是 <strong>abstraction (抽象)</strong> — "the act of simplifying: standing back from the details and working at a higher level"（抛开细节、在更高层面思考）。</p>`},
+ {id:"ch1-k2",t:"Variable 与赋值 / Variables and assignment",h:`
+  <p>"A variable is just a <strong>name that refers to a value</strong> — a label on a box." <code>=</code> 是赋值 assigns，<code>==</code> 才是比较 compares。命名惯例蛇形小写 / naming: snake_case，如 <code>learning_rate</code>。</p>`},
+ {id:"ch1-k3",t:"input 永远返回字符串 / input always returns a string",h:`
+  <p>所以要先 <strong>cast (类型转换)</strong>：<code>int("50")</code>、<code>float("3.14")</code>、<code>str(42)</code>；值非法时 Python raises <code>ValueError</code>。</p>`},
+ {id:"ch1-k4",t:"数字与浮点误差 / Numbers and floating-point imprecision",h:`
+  <p>"Computers store numbers in <strong>binary</strong>. Just as 1/3 cannot be written exactly in decimal (0.3333…), 0.1 cannot be stored exactly in binary — so <code>0.1 + 0.2</code> gives <code>0.30000000000000004</code>."</p>
+  <p>翻译：计算机用二进制存数字；正如 1/3 在十进制下写不尽，0.1 在二进制下也存不准，所以比较浮点用 <code>&lt;</code>/<code>&gt;</code> 别用 <code>==</code>。</p>
+  <pre><code>print(0.1 + 0.2)   # 0.30000000000000004  binary imprecision / 二进制误差
+print(7 / 2)       # 3.5   true division / 真除法
+print(7 // 2)      # 3     floor division / 整除（向下取整）
+print(7 % 2)       # 1     modulo, remainder / 取余（判断奇偶、轮次）
+print(2 ** 10)     # 1024  power / 幂</code></pre>`},
+ {id:"ch1-k5",t:"f-string 格式化 / f-strings",h:`
+  <p>"The F stands for <em>format</em>: it interpolates values — even whole expressions — inside a string."</p>
+  <pre><code>p = 0.987654; n = 1234567; x = 3.14159
+print(f"{x:.2f}")       # 2 decimals / 两位小数
+print(f"{n:,}")         # thousands separator / 千分位
+print(f"{p:.1%}")       # percentage / 百分比
+print(f"{'loss':&gt;10}")  # right-align, width 10 / 右对齐、宽 10
+print(f"{2 * 3}")       # 6, expressions allowed / 花括号里可写表达式</code></pre>`},
+ {id:"ch1-k6",t:"字符串不可变 / Strings are immutable",h:`
+  <p>"String methods return <em>new</em> strings; the original never changes." 方法可以链式调用 / methods chain nicely:</p>
+  <pre><code>s = "  Ada Lovelace  "
+print(s.strip())                          # remove outer whitespace / 去两端空白
+print(s.strip().upper())                  # chained / 链式调用
+print("cs50,python".split(","))           # ['cs50', 'python'] -> list
+print("-".join(["a", "b", "c"]))          # a-b-c
+print("cat" in "catalogue")               # True, substring test / 子串判断
+print("123".isdigit())                    # True</code></pre>`},
+ {id:"ch1-k7",t:"Side effect 与 None / Side effects and None",h:`
+  <p>"<code>print()</code> does something visible but returns nothing: <code>None</code> means 'no value here'." A function without <code>return</code> gives back <code>None</code>. 没写 return 的函数返回 None。</p>`},
+ {id:"ch1-k8",t:"Scope 与 main() 惯例 / Scope and the main convention",h:`
+  <p>"Variables created inside a function are <strong>local</strong>: they exist only while the function runs." 函数内变量是局部的。</p>
+  <pre><code>def main():
+    ...
+
+def train(lr=0.001, epochs=10):    # default arguments / 默认参数
+    """docstring: one line saying what it does / 一句话说明用途"""
+    return lr, epochs              # multiple values -> actually a tuple / 多个返回值其实是元组
+
+if __name__ == "__main__":         # entry point by convention / 惯例入口
+    main()</code></pre>`},
+ {id:"ch1-k9",t:"常见坑 / Common pitfalls",h:`
+  <table><tr><th>坑 Pitfall</th><th>现象 Symptom</th></tr>
+  <tr><td>对 input 结果直接做算术 / arithmetic on input</td><td><code>"5" * 2</code> 得 <code>"55"</code>；必须先 <code>int()</code></td></tr>
+  <tr><td><code>=</code> 与 <code>==</code> 混用 / mixing them</td><td>逻辑错或语法错</td></tr>
+  <tr><td>忘了调用函数 / forgetting the call</td><td>打印出 <code>&lt;function ...&gt;</code></td></tr>
+  <tr><td>Tab 与空格混缩进 / mixing tabs and spaces</td><td><code>IndentationError</code>；统一 4 空格</td></tr></table>`},
+ {id:"ch1-k10",t:"PyTorch 关联 / PyTorch connection",h:`
+  <ul><li>超参数（lr、epochs、batch_size）就是变量 / hyperparameters are just variables；打日志全靠 f-string / logging runs on f-strings</li>
+  <li><code>loss.item()</code> 把单元素张量转成 Python 数 / converts a single-element tensor to a Python number — casting 思想的延续</li></ul>`}],
+ex:[
+ {id:"ch1-e1",q:"用 f-string 把 0.987654 打成 Accuracy: 98.77% / Use an f-string to print 0.987654 as a percentage with two decimals",a:`<pre><code>accuracy = 0.987654
+print(f"Accuracy: {accuracy:.2%}")    # Accuracy: 98.77%</code></pre>`},
+ {id:"ch1-e2",q:"写 train(lr=0.001, epochs=10)，打印两个超参数；调用 train() 和 train(lr=0.01) / Write train() with defaults; call it with none and with one",a:`<pre><code>def train(lr=0.001, epochs=10):
+    print(f"lr={lr}, epochs={epochs}")
+
+def main():
+    train()          # both defaults / 全用默认值
+    train(lr=0.01)   # override one / 只覆盖一个
+
+if __name__ == "__main__":
+    main()</code></pre>`},
+ {id:"ch1-e3",q:"用 input 读 batch size 转 int；输入 abc 会怎样？怎么防？ / Read a batch size and cast to int; what happens on 'abc'? How to guard?",a:`<pre><code>batch_size = int(input("Batch size: "))   # input returns str, cast it / 要转换
+print(f"batch_size = {batch_size}")</code></pre>
+  <p>输入 <code>abc</code> 抛 / raises <code>ValueError: invalid literal for int()</code>。防法 / the guard is in 4.1。</p>`},
+ {id:"ch1-e4",q:"写 report(correct, total)，返回 \"3/4 = 75.0%\" 这样的字符串 / Write report() returning a string like '3/4 = 75.0%'",a:`<pre><code>def report(correct, total):
+    return f"{correct}/{total} = {correct / total:.1%}"
+
+print(report(3, 4))     # 3/4 = 75.0%</code></pre>`}]},
+{id:"ch2",num:"第 2 讲",title:"条件语句 Conditionals",big:"第 2 讲打卡",blocks:[
+ {id:"ch2-k1",t:"Boolean expression 与控制流 / Boolean expressions and control flow",h:`
+  <p>"A <strong>Boolean expression (布尔表达式)</strong> is a yes/no question whose answer is either True or False."</p>
+  <p>"<strong>Conditionals (条件语句)</strong> let your program take different paths depending on those answers" — 这就是 <strong>control flow (控制流)</strong>。</p>`},
+ {id:"ch2-k2",t:"elif、链式比较与三元 / elif, chained comparisons, ternary",h:`
+  <p><code>elif</code> = "else if"，只会命中第一个为真的分支 / only the first true branch runs。</p>
+  <p><strong>Chained comparison (链式比较)</strong> — Python 让你像英语一样连着写：<code>18 &lt;= age &lt; 60</code>。</p>
+  <p><strong>Conditional expression (条件表达式 / 三元)</strong> — 一行装下 if-else / an if-else fused into one line：</p>
+  <pre><code>device = "cuda" if has_gpu else "cpu"</code></pre>`},
+ {id:"ch2-k3",t:"Truthiness 真假值",h:`
+  <p>"Nonzero numbers and nonempty values are <em>truthy</em>; <code>0</code>, <code>""</code>, <code>[]</code>, <code>{}</code> and <code>None</code> are <em>falsy</em> — Python treats them as False. So <code>if xs:</code> means 'if xs is not empty'." 空的、零的都算假，其余都算真。</p>`},
+ {id:"ch2-k4",t:"match 语法糖 / match as syntactic sugar",h:`
+  <p><strong>syntactic sugar (语法糖)</strong>: "syntax that adds no new power, only readability" — 像其他语言的 switch。</p>
+  <pre><code>match command:                  # Python 3.10+
+    case "train":               # exact match / 精确匹配
+        print("开始训练")
+    case "eval" | "test":       # | means or / 或
+        print("评估")
+    case _:                     # default / 兜底
+        print("未知命令")</code></pre>`},
+ {id:"ch2-k5",t:"常见坑 / Common pitfalls",h:`
+  <ul><li><code>if x == 1 or 2:</code> <strong>永远为真 / always True</strong>！要写 <code>x in (1, 2)</code></li>
+  <li>忘写冒号 / missing colon <code>:</code></li></ul>`},
+ {id:"ch2-k6",t:"PyTorch 关联 / PyTorch connection",h:`
+  <pre><code>if epoch % 10 == 0:
+    lr *= 0.5                                  # learning-rate decay / 学习率衰减
+if loss &lt; best_loss:
+    best_loss = loss
+    torch.save(model.state_dict(), "best.pt")  # save the best only / 只存最优模型</code></pre>`}],
+ex:[
+ {id:"ch2-e1",q:"写 grade(score)：≥90 A，≥80 B，≥70 C，否则 F / Write a letter-grade function",a:`<pre><code>def grade(score):
+    if score &gt;= 90:     # only the first true branch runs / 只命中第一个为真分支
+        return "A"
+    elif score &gt;= 80:
+        return "B"
+    elif score &gt;= 70:
+        return "C"
+    else:
+        return "F"
+
+print(grade(85))   # B</code></pre>`},
+ {id:"ch2-e2",q:"写 choose_device(mode)：CUDA_AVAILABLE = False，mode 为 gpu 且可用返回 cuda，否则 cpu / Simulate device selection",a:`<pre><code>CUDA_AVAILABLE = False   # pretend we probed the hardware / 假装检测过硬件
+
+def choose_device(mode):
+    if mode == "gpu" and CUDA_AVAILABLE:
+        return "cuda"
+    return "cpu"
+
+print(choose_device("gpu"))   # cpu</code></pre>
+  <p>真实 PyTorch 一行 / the real one-liner: <code>device = "cuda" if torch.cuda.is_available() else "cpu"</code>；Apple 芯片是 <code>"mps"</code>。</p>`},
+ {id:"ch2-e3",q:"写 should_stop(epochs_no_improve, patience) 返回 bool / Early-stopping predicate",a:`<pre><code>def should_stop(epochs_no_improve, patience):
+    return epochs_no_improve &gt;= patience   # the comparison IS the bool / 比较式本身就是 bool
+
+print(should_stop(3, 3))   # True</code></pre>`},
+ {id:"ch2-e4",q:"写 is_valid_label(label)：label 必须是 0、1、2 之一 / Valid-label check with in",a:`<pre><code>VALID_LABELS = (0, 1, 2)   # ALL_CAPS constant / 全大写常量（第 10 讲）
+
+def is_valid_label(label):
+    return label in VALID_LABELS    # membership test / 成员判断
+
+print(is_valid_label(2))   # True
+print(is_valid_label(5))   # False</code></pre>`}]},
+{id:"ch3",num:"第 3 讲",title:"循环 Loops",big:"第 3 讲打卡",blocks:[
+ {id:"ch3-k1",t:"while / for / range / enumerate",h:`
+  <p>"A loop does something again and again — we call that <strong>iterating (迭代)</strong>. Use <strong>while</strong> when you don't know in advance how many times; use <strong>for</strong> when you can enumerate a sequence."</p>
+  <p><strong>range</strong> — "generates 0 up to, but <strong>not including</strong>, the stop value" — <strong>off-by-one error (差一错误)</strong> 的经典来源。</p>
+  <pre><code>i = 0
+while i &lt; 5:              # unknown count / 次数未知时
+    print(i)
+    i += 1                # missing this = infinite loop; Ctrl-C saves you / 忘了就死循环
+
+for i in range(2, 10, 2): # 2 4 6 8  start, stop(不含), step
+    ...
+for x in xs:              # iterate items directly / 直接遍历元素
+    ...
+for i, x in enumerate(xs, start=1):   # index + item / 带序号
+    ...</code></pre>`},
+ {id:"ch3-k2",t:"列表操作 / List operations",h:`
+  <pre><code>xs = [3, 1, 2]
+xs.append(4)           # add to the end / 尾部加一个
+xs.extend([5, 6])      # merge another list / 合并列表
+xs.remove(1)           # remove first match by value / 按值删第一个
+last = xs.pop()        # pop and return the last item / 弹出末尾
+xs.sort()              # in-place, returns None! / 原地排序，返回 None！
+top = sorted(xs)       # returns a NEW sorted list / 返回新列表
+# access: xs[0] first, xs[-1] last, len(xs) size / 首个、末个、长度</code></pre>
+  <p>坑 / pitfall：<code>y = xs.sort()</code> 里 y 是 <code>None</code>。</p>`},
+ {id:"ch3-k3",t:"字典与计数模板 / Dictionaries and the counting template",h:`
+  <p>"A <strong>dictionary (字典)</strong> is a collection of <strong>key–value pairs (键值对)</strong>, like a real dictionary: look up a word (key) to get its definition (value)."</p>
+  <pre><code>counts = {}
+for label in labels:
+    counts[label] = counts.get(label, 0) + 1   # the counting template / 计数模板，背下来
+
+counts.get(key, default)   # default instead of KeyError / 键不存在给默认值
+"loss" in counts           # key membership / 查键
+for k, v in counts.items():    # keys and values together / 同时遍历键值
+    ...</code></pre>`},
+ {id:"ch3-k4",t:"元组与嵌套解包 / Tuples and nested unpacking",h:`
+  <p>"A <strong>tuple (元组)</strong> is an <strong>immutable (不可变的)</strong> sequence: once created, it cannot change. A function returning several values actually returns a tuple."</p>
+  <pre><code>point = (3, 4)      # immutable / 不可变
+x, y = point        # unpacking / 解包
+
+for (x, y), label in dataset:    # nested unpacking / 嵌套解包，训练循环天天见
+    ...</code></pre>`},
+ {id:"ch3-k5",t:"break / continue / 嵌套循环 / Nested loops",h:`
+  <p>"The inner loop runs to completion for every single step of the outer loop." <code>break</code> 跳出整个循环 / exits the loop；<code>continue</code> 跳过本轮 / skips to the next iteration。</p>`},
+ {id:"ch3-k6",t:"PyTorch 关联：训练循环骨架 / Training-loop skeleton",h:`
+  <pre><code>for epoch in range(epochs):      # outer: one full pass over the data / 外层：整个数据集过一遍
+    for x, y in dataloader:      # inner: one batch at a time / 内层：一批一批喂
+        ...                      # forward / backward / update 前向、反向、更新</code></pre>`}],
+ex:[
+ {id:"ch3-e1",q:"给 losses = [0.9, 0.75, 0.62]，用 for + enumerate 打印 epoch 1: loss=0.900 / Print epoch losses with enumerate",a:`<pre><code>losses = [0.9, 0.75, 0.62]
+for epoch, loss in enumerate(losses, start=1):   # index + item / 序号加元素
+    print(f"epoch {epoch}: loss={loss:.3f}")</code></pre>`},
+ {id:"ch3-e2",q:"用 while 模拟训练：loss 初始 1.0，每轮 loss *= 0.9，直到 &lt; 0.01，打印轮数 / Simulate decay until convergence",a:`<pre><code>loss = 1.0
+epoch = 0
+while loss &gt;= 0.01:      # keep going while the condition holds / 条件成立就继续
+    loss *= 0.9
+    epoch += 1           # without this: infinite loop / 少了这行就死循环
+print(f"第 {epoch} 轮收敛，loss={loss:.4f}")   # about 44 / 约 44 轮</code></pre>`},
+ {id:"ch3-e3",q:"早停完整版：10 轮 loss 列表，patience = 3（连续 3 轮不创新低就 break） / Full early stopping with patience",a:`<pre><code>losses = [0.90, 0.75, 0.62, 0.60, 0.61, 0.605, 0.61, 0.60, 0.604, 0.602]
+patience = 3
+best = float("inf")     # infinity: any loss beats it / 无穷大：任何 loss 都更小
+no_improve = 0
+
+for epoch, loss in enumerate(losses, start=1):
+    print(f"epoch {epoch}: loss={loss:.3f}")
+    if loss &lt; best:             # new best / 创新低
+        best = loss
+        no_improve = 0
+    else:
+        no_improve += 1
+        if no_improve &gt;= patience:
+            print(f"stop at {epoch} / 第 {epoch} 轮提前停止")
+            break</code></pre>
+  <p>运行到第 7 轮停止 / stops at epoch 7 — the skeleton of real early stopping。</p>`},
+ {id:"ch3-e4",q:"统计类别分布：labels = [0, 2, 1, 0, 2, 2] → {0: 2, 1: 1, 2: 3} / Class distribution with the counting template",a:`<pre><code>labels = [0, 2, 1, 0, 2, 2]
+counts = {}
+for label in labels:
+    counts[label] = counts.get(label, 0) + 1   # the counting template / 计数模板
+print(counts)   # {0: 2, 1: 1, 2: 3}</code></pre>
+  <p>做分类任务前先看类别分布（是否均衡）/ before any classification task, check class balance like this。</p>`}]},
+{id:"ch4",num:"第 4 讲",title:"异常 Exceptions",big:"第 4 讲打卡",blocks:[
+ {id:"ch4-k1",t:"Exception 与 try/except/else/finally",h:`
+  <p>"When something goes wrong at runtime, Python <em>raises</em> an <strong>exception (异常)</strong>. If nobody catches it, your program crashes."</p>
+  <p>"<strong>try/except</strong> — try to do something; if it fails <em>in a particular way</em>, handle it gracefully instead of crashing."</p>
+  <pre><code>try:
+    n = int(s)
+except ValueError as e:      # catch only what you expect / 只捕获预期的异常
+    print(f"出错了: {e}")
+else:                        # runs when no exception / 没异常才走
+    print("OK")
+finally:                     # always runs / 无论如何都执行（收尾用）
+    print("done")</code></pre>`},
+ {id:"ch4-k2",t:"raise 主动抛异常 / Raising your own",h:`
+  <p>"Throw your own exception to signal invalid input — <strong>fail early and loudly</strong>, never produce a wrong answer silently." 翻译：在源头尽早、带信息地报错，也不要悄悄产出错误结果。</p>
+  <pre><code>def set_lr(value):
+    if value &lt;= 0:
+        raise ValueError(f"学习率必须 &gt; 0，得到 {value}")</code></pre>`},
+ {id:"ch4-k3",t:"Traceback 阅读法与异常表 / Reading tracebacks; exception table",h:`
+  <p>"Read it <strong>from the bottom up</strong>: the last line tells you <em>what</em> went wrong; the lines above tell you <em>where</em>." 自下而上读：最后一行说出了什么事，上面说在哪里。</p>
+  <table><tr><th>异常</th><th>典型触发 Typical trigger</th></tr>
+  <tr><td><code>ValueError</code></td><td>值非法，如 <code>int("abc")</code> / right type, invalid value</td></tr>
+  <tr><td><code>TypeError</code></td><td><code>"1" + 1</code> / wrong type</td></tr>
+  <tr><td><code>NameError</code></td><td>未定义变量 / undefined name</td></tr>
+  <tr><td><code>IndexError</code></td><td><code>xs[10]</code> 越界 / out of range</td></tr>
+  <tr><td><code>KeyError</code></td><td>字典缺键 / missing key</td></tr>
+  <tr><td><code>ZeroDivisionError</code></td><td><code>1 / 0</code></td></tr>
+  <tr><td><code>ModuleNotFoundError</code></td><td>库没装或没 import</td></tr></table>`},
+ {id:"ch4-k4",t:"PyTorch 报错对照表 / Real-world PyTorch error map",h:`
+  <table><tr><th>报错片段 Error snippet</th><th>真实原因 Real cause</th></tr>
+  <tr><td><code>mat1 and mat2 shapes cannot be multiplied</code></td><td>相邻两层维度接不上 / layer dims don't match</td></tr>
+  <tr><td><code>Expected all tensors to be on the same device</code></td><td>一个在 CPU 一个在 GPU / tensors split across devices</td></tr>
+  <tr><td><code>index out of range in self</code></td><td>batch 越界或标签超类别数 / bad index or label ≥ n_classes</td></tr>
+  <tr><td><code>size mismatch for ...</code></td><td>加载参数时结构对不上 / state_dict doesn't fit</td></tr>
+  <tr><td><code>object is not callable</code></td><td>忘写 forward 或调用非函数 / forgot forward</td></tr></table>`}],
+ex:[
+ {id:"ch4-e1",q:"循环要求输入整数 epochs，非法就重试 / Re-prompt until a valid integer",a:`<pre><code>while True:
+    try:
+        epochs = int(input("Epochs: "))
+        break                    # success -&gt; leave the loop / 成功才跳出
+    except ValueError:
+        print("请输入整数 / please enter an integer")
+print(f"训练 {epochs} 轮")</code></pre>`},
+ {id:"ch4-e2",q:"写 safe_int(s, default=0) / A forgiving int converter",a:`<pre><code>def safe_int(s, default=0):
+    try:
+        return int(s)
+    except ValueError:
+        return default           # forgive and fall back / 转不动就给默认值
+
+print(safe_int("32", default=1))    # 32
+print(safe_int("abc", default=1))   # 1</code></pre>`},
+ {id:"ch4-e3",q:"读报错：ys[2]（ys 只有 2 个元素）、int(\"3.5\")、\"1\" + 1 各抛什么？ / Name each exception and why",a:`<ul><li><code>ys[2]</code> → <code>IndexError</code>，合法下标是 0 和 1 / valid indices are 0 and 1</li>
+ <li><code>int("3.5")</code> → <code>ValueError</code>；要先 <code>int(float("3.5"))</code> / only whole-number strings</li>
+ <li><code>"1" + 1</code> → <code>TypeError</code>，str 和 int 不能相加 / cannot concatenate str and int</li></ul>`},
+ {id:"ch4-e4",q:"写 set_lr(model, value)：value ≤ 0 就 raise ValueError，调用方捕获并打印 / Raise at the source, catch at the caller",a:`<pre><code>def set_lr(model, value):
+    if value &lt;= 0:
+        raise ValueError(f"学习率必须 &gt; 0，得到 {value}")   # loud and informative / 大声且带信息
+    model["lr"] = value
+
+model = {"lr": 0.001}
+try:
+    set_lr(model, -1)
+except ValueError as e:
+    print(f"捕获到 / caught: {e}")
+print(model)   # state untouched / lr 未被改坏</code></pre>`}]},
+{id:"ch5",num:"第 5 讲",title:"库 Libraries",big:"第 5 讲打卡",blocks:[
+ {id:"ch5-k1",t:"Module 与 import 三种写法 / Modules and importing",h:`
+  <p>"Don't reinvent the wheel: someone has probably written the code you need — import it and stand on the shoulders of others." 翻译：不要重复造轮子——别人多半已写好你需要的代码，import 过来直接用。</p>
+  <pre><code>import random                      # use random.choice(...) / 全名调用
+from random import choice, gauss   # call directly / 直接调用
+import torch
+import torch.nn as nn              # the deep-learning standard alias / 深度学习标准别名
+import torch.nn.functional as F</code></pre>`},
+ {id:"ch5-k2",t:"random 全家桶与 seed / Randomness and seeding",h:`
+  <p>"Computers generate <strong>pseudo-random (伪随机)</strong> numbers: deterministic given the same <strong>seed (种子)</strong> — which is exactly what makes experiments reproducible (可复现)."</p>
+  <pre><code>random.seed(42)                  # fix the seed = reproducible / 固定种子
+random.random()                  # [0, 1) uniform / 均匀
+random.randint(1, 6)             # inclusive integers / 含两端
+random.choice(["cat", "dog"])    # pick one / 随机选一个
+random.sample(range(100), 5)     # 5 unique picks / 不重复抽样
+random.shuffle(xs)               # in-place shuffle / 原地打乱（划分数据集）
+random.gauss(0, 0.1)             # normal noise / 正态噪声（造数据）</code></pre>`},
+ {id:"ch5-k3",t:"切片详解 / Slicing in depth",h:`
+  <p>"Take a piece of a sequence; the stop index is <strong>exclusive (不含)</strong>. Tensors slice with the same syntax." 张量切片语法一模一样：<code>x[:, 0]</code>。</p>
+  <pre><code>xs = [0, 1, 2, 3, 4, 5]
+xs[1:4]     # [1, 2, 3]  inclusive start, exclusive stop / 含头不含尾
+xs[:3]      # first three / 前 3 个
+xs[-2:]     # last two / 最后 2 个
+xs[::2]     # [0, 2, 4]  every other / 隔一个取
+xs[::-1]    # reversed / 反转
+b = a       # alias! / 别名！改 b 连 a 一起变
+b = a[:]    # a real (shallow) copy / 这才是副本</code></pre>`},
+ {id:"ch5-k4",t:"命令行参数 / Command-line arguments",h:`
+  <p>"sys.argv holds the words typed after your script's name."</p>
+  <pre><code>import sys
+print(sys.argv)          # ['脚本名.py', '参数1', ...]
+sys.exit("用法: ...")    # exit with a message / 带消息退出</code></pre>`},
+ {id:"ch5-k5",t:"PyPI 与 pip",h:`
+  <p>"PyPI (the Python Package Index) is the online <strong>catalog (目录)</strong> of third-party packages; pip is the installer."</p>
+  <pre><code>pip install torch      # install / 装（本项目已装好）
+pip list               # what's installed / 看装了什么</code></pre>
+  <p>包名和 import 名可能不同：pip 装 <code>pillow</code>，代码里 <code>import PIL</code>。</p>`},
+ {id:"ch5-k6",t:"JSON",h:`
+  <p>"The standard format for structured data on the web / 网络通用的结构化数据格式."</p>
+  <pre><code>import json
+config = {"lr": 0.001, "epochs": 10}
+text = json.dumps(config)      # dict -&gt; string / 转字符串
+back = json.loads(text)        # string -&gt; dict / 转回字典</code></pre>`}],
+ex:[
+ {id:"ch5-e1",q:"random.gauss 造 100 个带噪声的点：y = 2x + 1 + 噪声 / Generate noisy regression data",a:`<pre><code>import random
+
+random.seed(42)     # reproducible / 固定种子，可复现
+xs = [random.uniform(-1, 1) for _ in range(100)]            # 100 inputs / 100 个输入
+ys = [2 * x + 1 + random.gauss(0, 0.1) for x in xs]         # y = 2x + 1 + noise / 真规律加噪声
+print(xs[:3])
+print(ys[:3])</code></pre>`},
+ {id:"ch5-e2",q:"100 个下标 shuffle 后，前 80 个训练集、后 20 个验证集 / Shuffle indices, split 80/20",a:`<pre><code>import random
+
+indices = list(range(100))
+random.shuffle(indices)                      # in-place shuffle / 原地打乱
+train_idx, val_idx = indices[:80], indices[80:]   # slice = the split / 切片即划分
+print(len(train_idx), len(val_idx))   # 80 20</code></pre>`},
+ {id:"ch5-e3",q:"double.py：python double.py 21 打印 42；无参数则 sys.exit 用法提示 / Double a CLI number, exit politely otherwise",a:`<pre><code>import sys
+
+if len(sys.argv) != 2:
+    sys.exit("用法 / usage: python double.py 数字")   # exit with a message / 带消息退出
+print(int(sys.argv[1]) * 2)</code></pre>`},
+ {id:"ch5-e4",q:"加 random.seed(42) 前后各跑两次 5.1，观察差异 / Run 5.1 twice with and without a seed, compare",a:`<pre><code>random.seed(42)
+a = [random.uniform(-1, 1) for _ in range(5)]
+random.seed(42)                              # same seed again / 同一种子再来一次
+b = [random.uniform(-1, 1) for _ in range(5)]
+print(a)
+print(b)   # identical! / 完全相同！</code></pre>
+  <p>结论 / takeaway: 同一 seed 产生同一随机序列 → 实验可复现 / same seed, same sequence — that's reproducibility。</p>`}]},
+{id:"ch6",num:"第 6 讲",title:"单元测试 Unit Tests",big:"第 6 讲打卡",blocks:[
+ {id:"ch6-k1",t:"Unit test 与 assert",h:`
+  <p>"A <strong>unit test (单元测试)</strong> is code that automatically tests a single <em>unit</em> — one function — of your program."</p>
+  <p>"<strong>assert (断言)</strong> — 'I claim this must be True — otherwise, crash loudly.'"</p>
+  <pre><code>assert normalize([0, 5, 10]) == [0.0, 0.5, 1.0], "归一化不对 / normalization is wrong"</code></pre>`},
+ {id:"ch6-k2",t:"pytest",h:`
+  <p>文件名 <code>test_xxx.py</code>，测试函数 <code>test_</code> 开头；运行 <code>python -m pytest test_xxx.py -v</code>：</p>
+  <pre><code>import pytest
+from normalize import normalize
+
+def test_basic():                      # normal case / 正常情况
+    assert normalize([0, 5, 10]) == [0.0, 0.5, 1.0]
+
+def test_constant_raises():            # edge case / 边界情况
+    with pytest.raises(ValueError):
+        normalize([3, 3, 3])</code></pre>`},
+ {id:"ch6-k3",t:"Edge case 与 corner case / Boundaries",h:`
+  <p>"An <strong>edge case (边界情况)</strong> sits at the <em>boundary</em> of validity — zero, empty, negative; a <strong>corner case (边角情况)</strong> combines several boundaries at once. Good test suites cover <strong>normal cases, edge cases, and error cases</strong>." 好的测试要覆盖：正常 + 边界 + 异常三类。</p>`},
+ {id:"ch6-k4",t:"PyTorch 关联 / PyTorch connection",h:`
+  <pre><code>assert x.shape == (32, 784), f"形状不对: {x.shape}"   # catch dim errors in 1s / 一秒定位维度错
+assert not torch.isnan(loss), "loss 变成 NaN 了 / loss is NaN"</code></pre>`}],
+ex:[
+ {id:"ch6-e1",q:"写 normalize(xs)（min-max 归一化），先 assert 自测 / Write min-max normalization, self-test with assert",a:`<pre><code>def normalize(xs):
+    lo, hi = min(xs), max(xs)
+    if hi == lo:
+        raise ValueError("所有值相同 / all values equal")
+    return [(x - lo) / (hi - lo) for x in xs]   # min-max scaling / 归一化到 0-1</code></pre>`},
+ {id:"ch6-e2",q:"思考 normalize([3, 3, 3]) 会怎样？改成抛 ValueError，写 pytest 测试 / What happens with equal values? Raise, then test it",a:`<p>原版会 <code>ZeroDivisionError</code>（max - min = 0）——典型边界情况 / a textbook edge case。</p>
+ <pre><code>def test_constant_raises():          # edge case / 边界情况
+    with pytest.raises(ValueError):
+        normalize([3, 3, 3])</code></pre>`},
+ {id:"ch6-e3",q:"给 accuracy(correct, total)（total 为 0 时抛 ValueError）写两个 pytest 用例 / Two pytest cases for accuracy",a:`<pre><code>def accuracy(correct, total):
+    if total == 0:
+        raise ValueError("total 不能为 0 / must not be zero")
+    return correct / total
+
+def test_normal():
+    assert accuracy(3, 4) == 0.75
+
+def test_zero_total_raises():        # error case / 异常情况
+    with pytest.raises(ValueError):
+        accuracy(3, 0)</code></pre>`}]},
+{id:"ch7",num:"第 7 讲",title:"文件读写 File I/O",big:"第 7 讲打卡",blocks:[
+ {id:"ch7-k1",t:"文件的本质与 with open / Files and the with statement",h:`
+  <p>"Files are just <strong>bytes on disk</strong>. <strong>Text files</strong> are human-readable characters; <strong>binary files (二进制文件)</strong> are everything else — images, <code>.pt</code> model files."</p>
+  <p>"<strong>with</strong> closes the file automatically, <strong>even if an error occurs</strong> halfway." 永远这么写 / always write it this way.</p>
+  <table><tr><th>模式 Mode</th><th>含义 Meaning</th><th>文件不存在 Missing file</th></tr>
+  <tr><td><code>"r"</code></td><td>读 / read (default)</td><td>报错 / error</td></tr>
+  <tr><td><code>"w"</code></td><td>写，<strong>先清空</strong> / write, <strong>truncates first</strong></td><td>新建 / created</td></tr>
+  <tr><td><code>"a"</code></td><td>追加 / append to the end</td><td>新建 / created</td></tr></table>
+  <pre><code>with open("log.txt", "w") as f:
+    f.write("epoch 1\n")             # write() adds NO newline / 不自动加换行
+
+with open("log.txt") as f:
+    for line in f:                   # line by line / 逐行读
+        print(line.strip())          # each line ends with \n / 每行末尾带换行符</code></pre>`},
+ {id:"ch7-k2",t:"CSV",h:`
+  <p>"<strong>CSV (comma-separated values, 逗号分隔值)</strong> — a plain-text table: each row is a record (记录). Read back, every value is a <strong>string</strong> — convert it yourself."</p>
+  <pre><code>import csv
+
+with open("data.csv") as f:
+    for row in csv.DictReader(f):    # each row is a dict / 每行是一个 dict
+        print(row["name"], float(row["score"]))
+
+with open("out.csv", "w", newline="") as f:   # newline="" avoids blank lines / 防空行
+    w = csv.DictWriter(f, fieldnames=["epoch", "loss"])
+    w.writeheader()
+    w.writerows(rows)</code></pre>`},
+ {id:"ch7-k3",t:"JSON 文件 / JSON files",h:`
+  <pre><code>with open("config.json", "w") as f:
+    json.dump(config, f, indent=2)    # indent=2 pretty-print / 缩进美化
+with open("config.json") as f:
+    cfg = json.load(f)</code></pre>`},
+ {id:"ch7-k4",t:"序列化 / Serialization",h:`
+  <p>"<strong>Serialization (序列化)</strong> — turning objects in memory into bytes you can store — <code>torch.save</code> does exactly this for models." 存模型就是序列化。</p>`}],
+ex:[
+ {id:"ch7-e1",q:"把 3 轮训练结果（epoch, loss, accuracy）写入 log.csv / Write 3 epochs of results to a CSV",a:`<pre><code>import csv
+
+rows = [
+    {"epoch": 1, "loss": 0.90, "accuracy": 0.60},
+    {"epoch": 2, "loss": 0.50, "accuracy": 0.80},
+    {"epoch": 3, "loss": 0.30, "accuracy": 0.90},
+]
+
+with open("log.csv", "w", newline="") as f:          # newline="" / 防空行
+    writer = csv.DictWriter(f, fieldnames=["epoch", "loss", "accuracy"])
+    writer.writeheader()
+    writer.writerows(rows)</code></pre>`},
+ {id:"ch7-e2",q:"读回 log.csv，用 max(key=lambda ...) 找 accuracy 最高的 epoch / Read back and find the best epoch",a:`<pre><code>with open("log.csv") as f:
+    reader = csv.DictReader(f)
+    best = max(reader, key=lambda r: float(r["accuracy"]))   # values are strings! / 值是字符串
+print(f"best / 最优 epoch={best['epoch']}, accuracy={best['accuracy']}")</code></pre>`},
+ {id:"ch7-e3",q:"追加模式给 log.txt 写一行 epoch 4 done / Append one line to a log",a:`<pre><code>with open("log.txt", "a") as file:   # "a" appends, never erases / 追加不清空
+    file.write("epoch 4 done\n")</code></pre>`},
+ {id:"ch7-e4",q:"把 {'lr': 0.01, 'epochs': 50} 存成 config.json 再读回 / Save and reload a config as JSON",a:`<pre><code>import json
+
+config = {"lr": 0.01, "epochs": 50}
+with open("config.json", "w") as f:
+    json.dump(config, f, indent=2)     # indent=2 pretty-prints / 缩进美化
+
+with open("config.json") as f:
+    cfg = json.load(f)
+print(f"lr={cfg['lr']}, epochs={cfg['epochs']}")</code></pre>`}]},
+{id:"ch8",num:"第 8 讲",title:"正则表达式 Regular Expressions（可快速过）",big:"第 8 讲打卡",blocks:[
+ {id:"ch8-k1",t:"Pattern 的概念与原始字符串 / Patterns and raw strings",h:`
+  <p>"A <strong>regular expression (正则表达式)</strong> is a <em>pattern</em> — a template that describes a set of strings."</p>
+  <p>"Always write regexes as <code>r\"...\"</code> (raw string 原始字符串), so Python passes the backslashes through to <code>re</code> untouched." 正则永远加 r 前缀。</p>`},
+ {id:"ch8-k2",t:"符号速查表 / Symbol cheat sheet",h:`
+  <table><tr><th>符号 Symbol</th><th>含义 Meaning</th><th>例子 Example</th></tr>
+  <tr><td><code>\d</code></td><td>digit / 数字</td><td><code>\d\d</code> 匹配 42</td></tr>
+  <tr><td><code>\w</code></td><td>word char / 字母数字下划线</td><td><code>\w+</code> 匹配 cat_1</td></tr>
+  <tr><td><code>\s</code></td><td>whitespace / 空白</td><td></td></tr>
+  <tr><td><code>.</code></td><td>any one char / 任意一个字符</td><td></td></tr>
+  <tr><td><code>[abc]</code></td><td>character class / 字符类</td><td>a 或 b 或 c</td></tr>
+  <tr><td><code>[^abc]</code></td><td>negated / 取反</td><td></td></tr>
+  <tr><td><code>* + ?</code></td><td>quantifiers / 量词：≥0、≥1、0 或 1 次</td><td><code>\d+</code> 匹配 123</td></tr>
+  <tr><td><code>{3}</code></td><td>exactly 3 times / 恰好 3 次</td><td><code>\d{3}</code></td></tr>
+  <tr><td><code>^ $</code></td><td>anchors / 锚点：开头、结尾</td><td><code>^\d{10}$</code> 整串 10 位数字</td></tr>
+  <tr><td><code>(...)</code></td><td>capture group / 分组捕获</td><td><code>(\d+)\.(\d+)</code></td></tr></table>`},
+ {id:"ch8-k3",t:"用法与贪婪匹配 / Usage and greediness",h:`
+  <pre><code>import re
+
+m = re.search(r"epoch (\d+)", "epoch 5, loss=0.3")
+m.group(1)                          # "5"  first capture / 第一组
+
+re.findall(r"\d+", "a1b22c333")     # ['1', '22', '333']  all matches / 全部匹配
+
+re.sub(r"\s+", " ", "a   b  c")     # "a b c"  clean spaces / 清洗空格</code></pre>
+  <p>默认匹配是 <strong>greedy (贪婪的)</strong>——尽可能多匹配。</p>`}],
+ex:[
+ {id:"ch8-e1",q:"从日志行提取 accuracy 数值 / Extract the accuracy number from a log line",a:`<pre><code>import re
+
+line = "epoch 5, accuracy=0.9123, loss=0.3456"
+m = re.search(r"accuracy=([\d.]+)", line)   # capture the number / 捕获数字部分
+print(m.group(1))   # 0.9123</code></pre>`},
+ {id:"ch8-e2",q:"re.fullmatch 验证 10 位纯数字学号 / Validate a 10-digit student ID",a:`<pre><code>import re
+
+student_id = input("学号 / ID: ")
+if re.fullmatch(r"\d{10}", student_id):     # exactly 10 digits, whole string / 整串恰好 10 位
+    print("合法 / valid")
+else:
+    print("不合法 / invalid")</code></pre>`},
+ {id:"ch8-e3",q:"用 re.sub 把 \"a   b  c\" 清洗成 \"a b c\" / Collapse repeated spaces",a:`<pre><code>import re
+
+dirty = "a   b  c"
+print(re.sub(r"\s+", " ", dirty))   # one or more whitespace -&gt; one space / 多个空白换成一个</code></pre>`}]},
+{id:"ch9",num:"第 9 讲",title:"面向对象 Object-Oriented Programming（必精读）",big:"第 9 讲打卡",blocks:[
+ {id:"ch9-k1",t:"OOP 范式与封装 / The paradigm and encapsulation",h:`
+  <p>"Object-oriented programming is a <em>paradigm</em> (范式)： model the world as <strong>objects</strong> that bundle <strong>data (attributes, 属性)</strong> and <strong>behavior (methods, 方法)</strong> together."</p>
+  <p><strong>为什么要类 / Why classes?</strong> Without classes, an optimizer's parameters, learning rate, and momentum lie scattered around. A class keeps the state and the code that operates on it <strong>in one place</strong> — that's <strong>encapsulation (封装)</strong>.</p>`},
+ {id:"ch9-k2",t:"Class、instance、self、__init__",h:`
+  <p>"A <strong>class (类)</strong> is a <strong>blueprint (蓝图)</strong>； an <strong>instance (实例)</strong> is one thing built from it. One blueprint, many objects."</p>
+  <p>"<strong>self</strong> is the very object the method was called on: <code>obj.bark()</code> is really <code>Dog.bark(obj)</code>."</p>
+  <p>"<strong>__init__ (constructor, 构造方法)</strong> runs automatically when an object is created, to <em>initialize (初始化)</em> its attributes."</p>
+  <pre><code>class Dog:
+    def __init__(self, name, age):    # the constructor / 构造方法：创建时自动调用
+        self.name = name              # instance attribute / 实例属性
+        self.age = age
+
+    def bark(self):                   # method: first param is ALWAYS self / 第一个参数永远是 self
+        return f"{self.name}: 汪汪!"
+
+dog = Dog("阿黄", 3)      # instantiate / 实例化
+print(dog.bark())        # really Dog.bark(dog) / 本质是类调函数</code></pre>`},
+ {id:"ch9-k3",t:"完整小例子：栈 / A complete example: a stack",h:`
+  <pre><code>class Stack:
+    def __init__(self):
+        self._items = []              # _ prefix = "internal" / 约定：内部用
+
+    def push(self, x):
+        self._items.append(x)
+
+    def pop(self):
+        if not self._items:
+            raise IndexError("空栈 / empty stack")   # guard invalid state / 守卫非法状态
+        return self._items.pop()
+
+    def __len__(self):                # powers len(stack) / 让 len() 能用
+        return len(self._items)
+
+    def __repr__(self):               # powers print(stack) / 让打印好看
+        return f"Stack({self._items})"</code></pre>`},
+ {id:"ch9-k4",t:"@property",h:`
+  <p>"Looks like an attribute from the outside, runs code on the inside — a <strong>getter/setter</strong> (取值器/设值器) in disguise, for validation."</p>
+  <pre><code>class Model:
+    def __init__(self):
+        self._lr = 0.001
+
+    @property
+    def lr(self):                     # read: m.lr / 读走这里
+        return self._lr
+
+    @lr.setter
+    def lr(self, value):              # write: m.lr = 0.01 / 写走这里
+        if value &lt;= 0:
+            raise ValueError("学习率必须 &gt; 0")
+        self._lr = value</code></pre>`},
+ {id:"ch9-k5",t:"继承、super 与多态 / Inheritance, super, polymorphism",h:`
+  <p>"A <strong>child class</strong> inherits the parent's attributes and methods, then extends or <strong>overrides (重写)</strong> them — an 'is-a' relationship."</p>
+  <p>"<strong>Polymorphism (多态)</strong> — the same method name behaves differently depending on the object's <em>actual type</em>."</p>
+  <pre><code>class Animal:
+    def __init__(self, name):
+        self.name = name
+    def speak(self):
+        return "..."
+
+class Dog(Animal):                    # parentheses = inheritance / 括号 = 继承
+    def __init__(self, name, breed):
+        super().__init__(name)        # run the parent's init first / 先让父类初始化
+        self.breed = breed
+    def speak(self):                  # override / 重写
+        return "汪!"</code></pre>`},
+ {id:"ch9-k6",t:"Dunder methods 双下方法速查 / Magic-method table",h:`
+  <p>"Double-underscore methods are <strong>hooks into Python's built-in syntax</strong>" / 双下划线方法是 Python 内置语法的钩子：</p>
+  <table><tr><th>方法 Method</th><th>触发时机 Triggered by</th></tr>
+  <tr><td><code>__init__</code></td><td>creating an object / 创建对象</td></tr>
+  <tr><td><code>__str__</code> / <code>__repr__</code></td><td>print(obj) / console display</td></tr>
+  <tr><td><code>__eq__</code></td><td>obj1 == obj2</td></tr>
+  <tr><td><code>__add__</code></td><td>obj1 + obj2 — operator overloading / 运算符重载</td></tr>
+  <tr><td><code>__len__</code></td><td>len(obj)</td></tr>
+  <tr><td><code>__getitem__</code></td><td>obj[i] — <strong>and for-loops too / for 循环也靠它</strong></td></tr>
+  <tr><td><code>__call__</code></td><td>obj(...) called like a function / 像函数一样调用</td></tr></table>`},
+ {id:"ch9-k7",t:"@classmethod",h:`
+  <p>"A method that needs no instance; <code>cls</code> is the class itself — often used as an alternative constructor."</p>
+  <pre><code>class Config:
+    def __init__(self, lr, epochs):
+        self.lr, self.epochs = lr, epochs
+
+    @classmethod
+    def default(cls):
+        return cls(lr=0.001, epochs=10)   # cls IS Config / cls 就是类自己
+
+c = Config.default()</code></pre>`},
+ {id:"ch9-k8",t:"PyTorch 深度对照 / The nn.Module mapping",h:`
+  <pre><code>import torch.nn as nn
+
+class Net(nn.Module):                 # 1. inheritance / 继承
+    def __init__(self):               # 2. constructor defines layers = stores params / 构造里定义层=存参数
+        super().__init__()            # 3. super() first / 先初始化父类
+        self.fc = nn.Linear(784, 10)
+    def forward(self, x):             # 4. a method / 方法
+        return self.fc(x)
+
+net = Net()          # instantiate / 实例化
+net(x)               # 5. callable: __call__ auto-runs forward / 像函数一样调用
+print(net)           # 6. __repr__ prints the architecture / 打印网络结构
+sum(p.numel() for p in net.parameters())   # count parameters / 参数个数</code></pre>
+  <p>The parent <strong>nn.Module</strong> auto-collects every layer you register, so <code>net.parameters()</code> hands the optimizer all weights at once — the power of inheritance. Likewise <code>Dataset</code> only asks for <code>__len__</code> and <code>__getitem__</code>. / 父类自动收集你注册的每一层，optimizer 一句接管全部参数——这就是继承的威力。</p>`}],
+ex:[
+ {id:"ch9-e1",q:"写 Linear 类：__init__ 存 w、b（单输入单输出版），forward(x) 返回 w*x + b / A single-neuron Linear layer",a:`<pre><code>import random
+
+class Linear:
+    def __init__(self, n_in=1, n_out=1):
+        self.w = random.uniform(-1, 1)   # simplified: one weight / 简化版
+        self.b = 0.0
+
+    def forward(self, x):
+        return self.w * x + self.b       # y = wx + b / 前向计算
+
+layer = Linear()
+print(layer.forward(3.0))</code></pre>
+  <p>真实的 <code>nn.Linear(1, 1)</code> 内部就是一个权重矩阵 + 偏置向量 / the real one stores a weight matrix plus a bias vector。</p>`},
+ {id:"ch9-e2",q:"写 Dataset 类：实现 __len__、__getitem__，验证 len(ds)、ds[0]、for 遍历 / The DataLoader protocol",a:`<pre><code>class Dataset:
+    def __init__(self, xs, ys):
+        self.xs = xs
+        self.ys = ys
+
+    def __len__(self):               # powers len(ds) / 让 len() 能用
+        return len(self.xs)
+
+    def __getitem__(self, i):        # powers ds[i] and for-loops / 索引和 for 都靠它
+        return self.xs[i], self.ys[i]
+
+ds = Dataset([1.0, 2.0, 3.0], [0, 1, 0])
+print(len(ds))    # 3
+print(ds[1])      # (2.0, 1)
+for x, y in ds:
+    print(x, y)</code></pre>`},
+ {id:"ch9-e3",q:"写 SGD 类（step(grads) 按 lr 更新参数列表），再写 MomentumSGD(SGD) 继承并加 momentum / An optimizer plus a subclass",a:`<pre><code>class SGD:
+    def __init__(self, params, lr=0.01):
+        self.params = params   # a mutable list / 可原地修改
+        self.lr = lr
+
+    def step(self, grads):     # w &lt;- w - lr * grad / 参数更新规则
+        for i in range(len(self.params)):
+            self.params[i] -= self.lr * grads[i]
+
+class MomentumSGD(SGD):
+    def __init__(self, params, lr=0.01, momentum=0.9):
+        super().__init__(params, lr)   # parent init first / 先父类初始化
+        self.momentum = momentum       # then add new state / 再加新状态
+
+params = [1.0, 2.0]
+opt = MomentumSGD(params, lr=0.1)
+opt.step([0.5, -0.5])
+print(params)   # [0.95, 2.05]</code></pre>`},
+ {id:"ch9-e4",q:"用 @property 给 Model 做 lr 属性，setter 里 lr ≤ 0 抛 ValueError / A validated learning-rate property",a:`<pre><code>class Model:
+    def __init__(self):
+        self._lr = 0.001
+
+    @property
+    def lr(self):
+        return self._lr              # read path / 读
+
+    @lr.setter
+    def lr(self, value):
+        if value &lt;= 0:
+            raise ValueError("学习率必须 &gt; 0 / must be positive")
+        self._lr = value             # write path with validation / 写带校验
+
+m = Model()
+m.lr = 0.01      # triggers the setter / 触发 setter
+print(m.lr)      # 0.01
+m.lr = -1        # ValueError</code></pre>`},
+ {id:"ch9-e5",q:"给 Linear 加 __repr__（显示 Linear(w=0.35, b=0.00)）和 __len__（返回 2：w 和 b） / Pretty-print and parameter count",a:`<pre><code>    def __len__(self):
+        return 2    # learnable parameters: w and b / 可学习参数个数
+
+    def __repr__(self):
+        return f"Linear(w={self.w:.2f}, b={self.b:.2f})"
+
+layer = Linear()
+print(layer)      # Linear(w=0.35, b=0.00)
+print(len(layer)) # 2</code></pre>
+  <p>print(net) 能打印 PyTorch 网络结构，靠的就是每个模块实现了 __repr__ / printing a PyTorch model works via __repr__。</p>`}]},
+{id:"ch10",num:"第 10 讲",title:"杂项 Et Cetera",big:"第 10 讲打卡",blocks:[
+ {id:"ch10-k1",t:"set、常量与 global / Sets, constants, globals",h:`
+  <p>"A <strong>set (集合)</strong> is an unordered collection of <strong>unique (唯一的)</strong> values." <code>|</code> 并 union / <code>&amp;</code> 交 intersection / <code>-</code> 差 difference。</p>
+  <p>常量全大写放顶部 / ALL_CAPS constants at the top: <code>MAX_EPOCHS = 100</code>。</p>
+  <p><strong>global</strong> — "prefer passing parameters: mutating globals from inside functions creates <em>side effects at a distance</em> (远处的副作用) — hard to debug."</p>`},
+ {id:"ch10-k2",t:"Type hints 类型提示",h:`
+  <p>"Annotations Python does <strong>not</strong> enforce — they are documentation plus tooling support / 不强制，但 IDE 补全和查错神器."</p>
+  <pre><code>def accuracy(preds: list[int], labels: list[int]) -&gt; float: ...
+lr: float = 0.001
+def train(config: dict[str, float]) -&gt; None: ...</code></pre>`},
+ {id:"ch10-k3",t:"解包 / Unpacking",h:`
+  <pre><code>first, *rest = [1, 2, 3, 4]     # 1  [2, 3, 4]
+x, y = (3, 4)                   # tuple unpacking / 元组解包
+a, b = b, a                     # swap / 交换
+
+def loss_fn(*terms):            # any number of positional args / 任意多个位置参数 -&gt; tuple
+    return sum(terms)
+
+config = {"lr": 0.1, "epochs": 5}
+train(**config)                 # unpack dict into keyword args / 等价 train(lr=0.1, epochs=5)
+
+def train(lr=0.001, epochs=10, **kwargs):   # collect keyword args / 收集关键字参数 -&gt; dict
+    ...</code></pre>`},
+ {id:"ch10-k4",t:"推导式 / Comprehensions",h:`
+  <p>"A loop and an append fused into one expression."</p>
+  <pre><code>squares = [x ** 2 for x in range(5)]            # [0, 1, 4, 9, 16]
+evens = [x for x in xs if x % 2 == 0]           # with a filter / 带筛选
+one_hot = [[1 if i == l else 0 for i in range(3)] for l in labels]   # nested / 双重
+d = {name: score for name, score in pairs}      # dict comprehension / 字典推导
+s = {x % 3 for x in xs}                         # set comprehension / 集合推导
+gen = (x * 2 for x in range(10**6))             # generator expression: lazy / 惰性不占内存
+list(map(str, [1, 2, 3]))                       # ['1', '2', '3']</code></pre>`},
+ {id:"ch10-k5",t:"生成器 yield / Generators",h:`
+  <p>"A function with <strong>yield</strong> produces values <em>lazily (惰性地)</em> — one at a time, on demand, instead of building the whole list in memory. Calling it runs nothing yet; each <code>for</code>/<code>next</code> step advances it. This is the heart of mini-batching and DataLoader."</p>
+  <pre><code>def countdown(n):
+    while n &gt; 0:
+        yield n         # hand out one value, pause / 吐出一个值，暂停
+        n -= 1
+
+for i in countdown(3):
+    print(i)            # 3 2 1</code></pre>`},
+ {id:"ch10-k6",t:"argparse",h:`
+  <p>规范的命令行参数 / the tidy way to read command-line options:</p>
+  <pre><code>import argparse
+
+parser = argparse.ArgumentParser(description="训练脚本 / training script")
+parser.add_argument("--lr", type=float, default=0.001, help="学习率 / learning rate")
+parser.add_argument("--epochs", type=int, default=10, help="轮数 / epochs")
+args = parser.parse_args()
+
+print(args.lr, args.epochs)
+# run / 运行: python train.py --lr 0.01 --epochs 50
+# python train.py --help auto-generates help / 自动生成帮助</code></pre>`},
+ {id:"ch10-k7",t:"海象运算符 / The walrus operator",h:`
+  <p><code>:=</code> — assign and use in the same expression / 赋值的同时使用：</p>
+  <pre><code>if (n := len(xs)) &gt; 10:
+    print(f"太长: {n}")</code></pre>`}],
+ex:[
+ {id:"ch10-e1",q:"列表推导：labels = [0, 2, 1, 0] → 3 类 one-hot 二维列表 / One-hot via nested comprehension",a:`<pre><code>labels = [0, 2, 1, 0]
+n_classes = 3
+one_hot = [[1 if i == label else 0 for i in range(n_classes)] for label in labels]
+# [[1,0,0], [0,0,1], [0,1,0], [1,0,0]]</code></pre>`},
+ {id:"ch10-e2",q:"写生成器 batches(xs, ys, size) 用 yield 切 mini-batch，for 验证 / A mini-batch generator",a:`<pre><code>def batches(xs, ys, size):
+    for i in range(0, len(xs), size):        # step by size / 按批长跳步
+        yield xs[i:i + size], ys[i:i + size] # hand out one batch, pause / 吐出一批，暂停
+
+xs = list(range(10))
+ys = [x * 2 for x in xs]
+for bx, by in batches(xs, ys, 4):
+    print(bx, by)
+# [0, 1, 2, 3] [0, 2, 4, 6]
+# [4, 5, 6, 7] [8, 10, 12, 14]
+# [8, 9] [16, 18]</code></pre>`},
+ {id:"ch10-e3",q:"argparse：脚本支持 --lr（默认 0.001）、--epochs（默认 10） / CLI hyperparameters",a:`<pre><code>import argparse
+
+parser = argparse.ArgumentParser(description="mock training script / 模拟训练脚本")
+parser.add_argument("--lr", type=float, default=0.001, help="学习率 / learning rate")
+parser.add_argument("--epochs", type=int, default=10, help="轮数 / epochs")
+args = parser.parse_args()
+print(f"lr={args.lr}, epochs={args.epochs}")</code></pre>
+  <p>运行 / run: <code>python train.py --lr 0.01 --epochs 50</code></p>`},
+ {id:"ch10-e4",q:"给 accuracy(preds, labels) 加类型提示，内部用推导式统计 / Typed accuracy",a:`<pre><code>def accuracy(preds: list[int], labels: list[int]) -&gt; float:
+    correct = sum(1 for p, l in zip(preds, labels) if p == l)   # count matches / 数对上的
+    return correct / len(labels)
+
+print(accuracy([0, 1, 1, 0], [0, 1, 0, 0]))   # 0.75</code></pre>`},
+ {id:"ch10-e5",q:"写 def train(**config)：接收任意配置参数并打印 / Accept any config via **kwargs",a:`<pre><code>def train(**config):
+    lr = config.get("lr", 0.001)        # default if absent / 缺省给默认值
+    epochs = config.get("epochs", 10)
+    print(f"lr={lr}, epochs={epochs}")
+    print("rest / 其余配置:", config)
+
+train(lr=0.01, batch_size=32)
+
+opts = {"lr": 0.1, "epochs": 5}
+train(**opts)   # unpack dict into keyword args / 字典解包成关键字参数</code></pre>`}]},
+{id:"chM",num:"里程碑",title:"纯 Python 手写感知机 Milestone: a pure-Python perceptron",big:"里程碑项目打卡",blocks:[
+ {id:"chM-k1",t:"感知机更新规则（推导）/ The perceptron update rule",h:`
+  <p><strong>w ← w + lr · (y − ŷ) · x</strong>. "If the prediction ŷ is already correct, <code>err = 0</code> and the weights stay still; if wrong, each weight is nudged toward the correct side of the <strong>decision boundary (决策边界)</strong>. Repeat until zero errors — guaranteed to converge for <strong>linearly separable (线性可分)</strong> data."</p>
+  <p>翻译：预测对了误差为 0，权重不动；错了就把权重朝正确一侧推；重复直到零错误——对线性可分数据必收敛。</p>`},
+ {id:"chM-k2",t:"填空骨架 / Fill-in-the-blank skeleton",h:`
+  <pre><code>def step(x):
+    return 1 if x &gt;= 0 else 0    # activation / 激活函数
+
+w1 = w2 = b = 0.0                 # the model's parameters / 模型参数
+lr = 0.1                          # learning rate / 学习率
+data = [([0, 0], 0), ([0, 1], 0), ([1, 0], 0), ([1, 1], 1)]   # AND truth table / 与门真值表
+
+for epoch in range(20):           # training loop / 训练循环
+    errors = 0
+    for (x1, x2), y in data:
+        pred = ______             # 1. compute w1*x1 + w2*x2 + b, then step / 前向计算
+        err = y - pred
+        w1 += lr * err * x1       # 2. the update rule (copy it, absorb it) / 更新规则
+        w2 += lr * err * x2
+        b  += lr * err
+        errors += abs(err)
+    print(f"epoch {epoch}: w1={w1:.2f} w2={w2:.2f} b={b:.2f} errors={errors}")
+    if ______:                    # 3. all correct -&gt; stop early / 全对就提前结束
+        break</code></pre>`}],
+ex:[
+ {id:"chM-e1",q:"完成感知机并运行 python 01_perceptron_and.py，看它收敛 / Complete the perceptron and watch it converge",a:`<pre><code>def step(x):
+    return 1 if x &gt;= 0 else 0    # activation / 激活函数
+
+w1 = w2 = b = 0.0
+lr = 0.1
+data = [([0, 0], 0), ([0, 1], 0), ([1, 0], 0), ([1, 1], 1)]
+
+for epoch in range(20):
+    errors = 0
+    for (x1, x2), y in data:
+        pred = step(w1 * x1 + w2 * x2 + b)   # forward / 前向
+        err = y - pred
+        w1 += lr * err * x1                  # update / 更新
+        w2 += lr * err * x2
+        b  += lr * err
+        errors += abs(err)
+    print(f"epoch {epoch}: w1={w1:.2f} w2={w2:.2f} b={b:.2f} errors={errors}")
+    if errors == 0:
+        break</code></pre>
+  <table><tr><th>纯 Python（01 文件）</th><th>PyTorch（02 文件）</th></tr>
+  <tr><td>w1, w2, b 裸变量 / bare variables</td><td>model.parameters()</td></tr>
+  <tr><td>step(...) 前向 / forward</td><td>model(x) / forward()</td></tr>
+  <tr><td>err = y - pred 手算梯度 / hand-rolled</td><td>loss.backward() 自动求梯度 / autograd</td></tr>
+  <tr><td>w1 += lr * err * x1 手动更新</td><td>optimizer.step()</td></tr>
+  <tr><td>for epoch in range(20)</td><td>同样的训练循环 / the same loop</td></tr></table>`}]},
+{id:"ch11",num:"第 11 部分",title:"PyTorch 起步 Getting started with PyTorch",big:"PyTorch 起步打卡",blocks:[
+ {id:"ch11-k1",t:"环境自检 / Environment check",h:`
+  <pre><code>cd /Users/mzh24/agent/ali/cs50
+source .venv/bin/activate
+python pytorch_check.py      # prints version, MPS, autograd check / 打印版本、GPU、求导自检</code></pre>`},
+ {id:"ch11-k2",t:"张量 10 分钟 / Tensors in 10 minutes",h:`
+  <p>"A <strong>tensor (张量)</strong> is a multi-dimensional array — the single container for all data and all parameters. Unlike lists, tensors compute in bulk (<strong>vectorized (向量化)</strong>) and can live on the GPU."</p>
+  <pre><code>import torch
+
+t = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+t.shape        # torch.Size([2, 2])  shape / 形状
+t.dtype        # torch.float32
+
+torch.zeros(2, 3); torch.ones(2, 3); torch.rand(2, 3)
+
+t + 1          # bulk math, no loop / 整体运算，不用写循环！
+t @ t          # matrix multiply / 矩阵乘法
+t[:, 0]        # slicing, same as Lecture 5 / 切片，和第 5 讲一样
+t.view(4, 1)   # reshape / 改形状
+
+x = torch.tensor(3.0, requires_grad=True)   # "track my gradients" / 开启自动求导
+y = x ** 2
+y.backward()
+x.grad         # tensor(6.)  d(y)/d(x), automatic! / 自动求导
+
+device = "mps" if torch.backends.mps.is_available() else "cpu"
+t.to(device)   # move to the Apple GPU / 搬到 GPU</code></pre>`},
+ {id:"ch11-k3",t:"训练五步诀 / The training loop, five moves",h:`
+  <pre><code>optimizer.zero_grad()          # 1. zero the gradients / 清空上一轮梯度
+y_pred = model(x)              # 2. forward pass / 前向传播
+loss = criterion(y_pred, y)    # 3. compute the loss / 算损失
+loss.backward()                # 4. backward pass / 反向传播
+optimizer.step()               # 5. update the parameters / 更新参数</code></pre>
+  <p><strong>Gradient (梯度)</strong> — "the derivative of the loss with respect to each parameter; it points uphill, so <strong>gradient descent (梯度下降)</strong> steps the opposite way: <code>w ← w − lr · grad</code> — walk downhill on the loss surface until you reach a valley." 梯度指向上坡方向，所以沿反方向走。</p>`},
+ {id:"ch11-k4",t:"术语表 / Glossary",h:`
+  <ul><li><strong>epoch (轮)</strong> — one full pass over the data / 数据完整过一遍</li>
+  <li><strong>batch (批)</strong> — a chunk per update step / 每次更新用的一小块数据</li>
+  <li><strong>learning rate (学习率)</strong> — the step size / 步长</li>
+  <li><strong>forward pass (前向传播)</strong> — compute predictions / 算预测</li>
+  <li><strong>backpropagation (反向传播)</strong> — propagate errors backwards to get all gradients / 反向算出所有梯度</li></ul>`},
+ {id:"ch11-k5",t:"练习路线 / Practice roadmap",h:`
+  <ol><li>跑通 02_pytorch_linear.py，改数据、改学习率、加 epochs，观察收敛 / run it, then tweak</li>
+  <li>把 01_perceptron_and.py 的 AND 门改成五步诀风格 / rewrite the perceptron in the 5-move style</li>
+  <li>官方教程 "60 Minute Blitz"，配合第 9/10/11 部分读 / read the official blitz alongside</li>
+  <li>之后写第一个真实分类网络（MNIST） / then a real classifier</li></ol>`}],
+ex:[
+ {id:"ch11-e1",q:"运行 python pytorch_check.py，确认版本与 MPS 输出 / Run the env check and read its output",a:`<p>期望 / expect: torch 2.15.0, MPS available True, 梯度 = 6.0。</p>`},
+ {id:"ch11-e2",q:"运行 python 02_pytorch_linear.py，然后把 lr 改成 0.5 和 0.005 各跑一次，观察收敛变化 / Run the demo, then rerun with lr=0.5 and lr=0.005",a:`<p>观察点 / what to watch: loss 下降速度；lr 太大发散、太小太慢 / too big diverges, too small crawls。</p>`},
+ {id:"ch11-e3",q:"把 01 的感知机改成五步诀风格（挑战题 / challenge）",a:`<p>提示 / hint: 把 w1/w2/b 放进 <code>torch.tensor(..., requires_grad=True)</code>，用 MSE 而不是 step 激活，手写五步循环。</p>`}]}
+];
+const CHECKLIST=[
+ {id:"ck1",t:"会用终端 cd/ls 运行 .py，会用 REPL 试语法 / terminal + REPL basics"},
+ {id:"ck2",t:"能不查资料写出 main() + 自定义函数 + 默认参数 / functions with defaults from memory"},
+ {id:"ck3",t:"能用 f-string 把 0.9876 打成 98.76% / format a percentage"},
+ {id:"ck4",t:"能手写训练循环雏形（for epoch + 条件 + break 早停）/ hand-write a mini training loop"},
+ {id:"ck5",t:"会用字典计数模板统计类别分布 / class distribution via the counting template"},
+ {id:"ck6",t:"看到 traceback 能说出异常类型和出错位置 / read a traceback bottom-up"},
+ {id:"ck7",t:"会用 random 造数据、shuffle 划分、seed 保证可复现 / generate, split, reproduce"},
+ {id:"ck8",t:"会读写 csv/json 并按某列排序找最优 / CSV/JSON round-trip"},
+ {id:"ck9",t:"能手写 class Dataset: __len__ + __getitem__（DataLoader 协议）"},
+ {id:"ck10",t:"能手写 MomentumSGD(SGD) 并解释 super().__init__()"},
+ {id:"ck11",t:"会用生成器 yield 切 mini-batch / mini-batching with yield"},
+ {id:"ck12",t:"跑通感知机项目和 02_pytorch_linear.py，能背出训练五步诀 / both projects run; recite the 5 moves"}
+];
+const CHEATSHEET=`<table><tr><th>需求 Need</th><th>写法 How</th></tr>
+<tr><td>格式化 formatting</td><td><code>f"{x:.3f}"</code>、<code>f"{p:.1%}"</code>、<code>f"{n:,}"</code></td></tr>
+<tr><td>转类型 casting</td><td><code>int()</code> <code>float()</code> <code>str()</code> <code>.item()</code>(张量→数)</td></tr>
+<tr><td>切片 slicing</td><td><code>xs[1:3]</code>、<code>xs[::-1]</code>、张量同款 <code>x[:, 0]</code></td></tr>
+<tr><td>带序号遍历 indexed loop</td><td><code>for i, v in enumerate(xs, start=1)</code></td></tr>
+<tr><td>排序 sorting</td><td><code>sorted(rows, key=lambda r: r["loss"], reverse=True)</code></td></tr>
+<tr><td>读写文件 files</td><td><code>with open("f", "w") as file:</code></td></tr>
+<tr><td>捕获异常 catching</td><td><code>try: ... except ValueError:</code></td></tr>
+<tr><td>去重 unique</td><td><code>set(xs)</code></td></tr>
+<tr><td>统计 stats</td><td><code>sum()</code> <code>len()</code> <code>min()</code> <code>max()</code> <code>statistics.mean()</code></td></tr>
+<tr><td>随机 randomness</td><td><code>random.seed()</code> <code>randint()</code> <code>choice()</code> <code>shuffle()</code> <code>gauss()</code></td></tr>
+<tr><td>计数 counting</td><td><code>d[k] = d.get(k, 0) + 1</code></td></tr>
+<tr><td>命令行 CLI args</td><td><code>sys.argv</code> / <code>argparse</code></td></tr>
+<tr><td>存/读模型 model I/O</td><td><code>torch.save(model.state_dict(), "m.pt")</code> / <code>torch.load</code></td></tr></table>`;
+
+/* ============ 渲染与交互 RENDER & INTERACT ============ */
+const $=s=>document.querySelector(s);
+const cur=()=>S.current;
+const udata=()=>S.users[cur()];
+function esc(s){return s}
+
+function buildNav(){
+ const n=$("#navlist");n.innerHTML="";
+ CH.forEach(c=>{
+  const a=document.createElement("a");a.className="navlink";a.href="#"+c.id;a.dataset.nav=c.id;
+  a.innerHTML="<span>"+c.num+" · "+c.title+"</span><span class='badge' data-badge='"+c.id+"'>0/0</span>";
+  n.appendChild(a);
+ });
+ const a2=document.createElement("a");a2.className="navlink";a2.href="#cheat";a2.dataset.nav="cheat";
+ a2.innerHTML="<span>速查表 Cheat sheet</span>";n.appendChild(a2);
+ const a3=document.createElement("a");a3.className="navlink";a3.href="#chkl";a3.dataset.nav="chkl";
+ a3.innerHTML="<span>自查清单 Self-check</span><span class='badge' data-badge='chkl'>0/0</span>";n.appendChild(a3);
+}
+
+function buildMain(){
+ const m=$("#main");m.innerHTML="";
+ CH.forEach(c=>{
+  const sec=document.createElement("section");sec.id=c.id;
+  const items=c.blocks.length+c.ex.length;
+  let h="<div class='chhead'><div><h2>"+c.num+" "+c.title+"</h2><div class='sub'>"+items+" 个小项 · 大打卡独立记录 / "+items+" items, big check-in is separate</div></div>";
+  h+="<div class='bigwrap'><div style='display:flex;align-items:center;gap:10px'>"
+   +"<span class='mini'>"+items+" 项进度 / progress</span><div class='bar' data-bar='"+c.id+"' style='width:90px'><i></i></div>"
+   +"<button class='ck big' data-item='big-"+c.id+"'></button></div>"
+   +"<div class='when' data-when='big-"+c.id+"'></div><div class='mini'>"+c.big+" / big check-in</div></div></div>";
+  c.blocks.forEach(b=>{
+   h+="<div class='block'><div class='blockhead'><button class='ck' data-item='"+b.id+"'></button><h3>"+b.t+"</h3><span class='when' data-when='"+b.id+"'></span></div><div class='itembody'>"+b.h+"</div></div>";
+  });
+  c.ex.forEach(e=>{
+   h+="<div class='block'><div class='blockhead'><button class='ck' data-item='"+e.id+"'></button><h3><span class='tag'>习题 Exercise</span>"+e.q+"</h3><span class='when' data-when='"+e.id+"'></span></div><details><summary>显示答案 Show answer</summary><div class='itembody'>"+e.a+"</div></details></div>";
+  });
+  sec.innerHTML=h;m.appendChild(sec);
+ });
+ const s2=document.createElement("section");s2.id="cheat";
+ s2.innerHTML="<div class='chhead'><div><h2>高频 API 速查 Cheat sheet</h2><div class='sub'>查阅用，不打卡 / reference only</div></div></div>"+CHEATSHEET;
+ m.appendChild(s2);
+ const s3=document.createElement("section");s3.id="chkl";
+ let h3="<div class='chhead'><div><h2>学完自查清单 Self-check checklist</h2><div class='sub'>全部能做到就出师了 / all done = graduation</div></div></div>";
+ CHECKLIST.forEach(c=>{
+  h3+="<div class='block'><div class='blockhead'><button class='ck' data-item='"+c.id+"'></button><h3 style='font-weight:400;font-size:14px'>"+c.t+"</h3><span class='when' data-when='"+c.id+"'></span></div></div>";
+ });
+ s3.innerHTML=h3;m.appendChild(s3);
+}
+
+function fmtWhen(v){return v?v.slice(0,10):""}
+function applyState(){
+ document.querySelectorAll("[data-item]").forEach(el=>{
+  const id=el.dataset.item,v=udata()&&udata().checks[id];
+  el.classList.toggle("on",!!v);
+ });
+ document.querySelectorAll("[data-when]").forEach(el=>{
+  const v=udata()&&udata().checks[el.dataset.when];
+  el.textContent=v?("打卡于 / checked "+fmtWhen(v)):"";
+ });
+ updateProgress();
+}
+function updateProgress(){
+ const done=id=>udata()&&!!udata().checks[id];
+ CH.forEach(c=>{
+  const ids=[...c.blocks,...c.ex].map(x=>x.id);
+  const n=ids.filter(done).length;
+  setBadge(c.id,n+"/"+ids.length,n===ids.length);
+  const bar=document.querySelector("[data-bar='"+c.id+"'] i");
+  if(bar)bar.style.width=(100*n/ids.length)+"%";
+ });
+ const ckIds=CHECKLIST.map(c=>c.id);
+ const cn=ckIds.filter(done).length;
+ setBadge("chkl",cn+"/"+ckIds.length,cn===ckIds.length);
+ const total=CH.reduce((s,c)=>s+c.blocks.length+c.ex.length,0)+ckIds.length;
+ const dn=CH.reduce((s,c)=>s+[...c.blocks,...c.ex].map(x=>x.id).filter(done).length,0)+cn;
+ setBadge("ALL",dn+"/"+total,dn===total);
+ const ab=document.querySelector("[data-bar='ALL'] i");if(ab)ab.style.width=(100*dn/total)+"%";
+}
+function setBadge(id,txt,alldone){
+ document.querySelectorAll("[data-badge='"+id+"']").forEach(b=>{b.textContent=txt;b.classList.toggle("done",alldone)});
+}
+function refreshUsers(){
+ const sel=$("#usel");sel.innerHTML="";
+ Object.keys(S.users).forEach(n=>{
+  const o=document.createElement("option");o.value=n;o.textContent=n;
+  if(n===S.current)o.selected=true;sel.appendChild(o);
+ });
+ $("#uname").textContent=S.current?("当前用户 / current: "+S.current):"未选择用户 / no user";
+}
+document.addEventListener("click",e=>{
+ const el=e.target.closest(".ck");if(!el)return;
+ if(!cur()){showModal(false);return}
+ const id=el.dataset.item,cks=udata().checks;
+ if(cks[id])delete cks[id];else cks[id]=new Date().toISOString();
+ save();applyState();
+});
+$("#burger").addEventListener("click",()=>$("#layout").classList.toggle("hide"));
+$("#usel").addEventListener("change",e=>{S.current=e.target.value;save();applyState()});
+$("#uadd").addEventListener("click",()=>showModal(true));
+function showModal(cancellable){
+ $("#mcancel").style.display=cancellable?"inline-block":"none";
+ $("#modal").classList.add("show");$("#mname").value="";$("#mname").focus();
+}
+$("#mok").addEventListener("click",()=>{
+ const name=$("#mname").value.trim();if(!name)return;
+ if(!S.users[name])S.users[name]={created:new Date().toISOString(),lastVisit:new Date().toISOString(),checks:{}};
+ S.current=name;save();refreshUsers();applyState();$("#modal").classList.remove("show");
+});
+$("#mcancel").addEventListener("click",()=>$("#modal").classList.remove("show"));
+$("#mname").addEventListener("keydown",e=>{if(e.key==="Enter")$("#mok").click()});
+$("#exp").addEventListener("click",()=>{
+ const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+ a.download="cs50p-progress-backup.json";a.click();
+});
+$("#impfile").addEventListener("change",e=>{
+ const f=e.target.files[0];if(!f)return;
+ const r=new FileReader();
+ r.onload=()=>{try{
+   const d=JSON.parse(r.result);
+   if(d&&d.users){Object.assign(S.users,d.users);if(d.current&&!S.current)S.current=d.current;
+    save();refreshUsers();applyState();alert("导入成功 / imported")}
+  }catch(err){alert("文件格式不对 / invalid file")}};
+ r.readAsText(f);e.target.value="";
+});
+const spy=new IntersectionObserver(es=>{
+ es.forEach(en=>{
+  if(en.isIntersecting){
+   document.querySelectorAll(".navlink").forEach(a=>a.classList.toggle("active",a.dataset.nav===en.target.id));
+  }
+ });
+},{rootMargin:"-40% 0px -55% 0px"});
+
+buildNav();buildMain();
+if(!S.current){showModal(false)}
+else{udata().lastVisit=new Date().toISOString();save()}
+refreshUsers();applyState();
+document.querySelectorAll("section").forEach(s=>spy.observe(s));
+</script>
+</body>
+</html>
