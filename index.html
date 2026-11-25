@@ -58,6 +58,17 @@ th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-ali
 th{background:#f1f5f9}
 details{border:1px dashed #cbd5e1;border-radius:10px;padding:8px 12px;margin:8px 0;background:#f8fafc}
 summary{cursor:pointer;font-size:13px;color:var(--acc);font-weight:600}
+details.dd{border:1px solid var(--acc2);border-radius:12px;background:#fff;padding:0;overflow:hidden;margin:10px 0}
+details.dd>summary{list-style:none;display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--acc2);color:#065f46;font-weight:700;font-size:13px;border-radius:0}
+details.dd>summary::-webkit-details-marker{display:none}
+details.dd>summary::before{content:"▶";font-size:10px;transition:transform .15s}
+details.dd[open]>summary::before{transform:rotate(90deg)}
+.ddb{padding:10px 16px 14px;border-top:1px dashed var(--line);font-size:13.5px;line-height:1.8}
+.ddb p{margin:7px 0}
+.ddb ul,.ddb ol{margin:7px 0 7px 22px}
+.ddb table{margin:8px 0}
+.ddb .en{color:var(--mut);font-size:12.5px}
+.ddb .pit{background:#fef2f2;color:#991b1b;border-radius:8px;padding:7px 10px;font-size:12.5px}
 .exq{font-size:14px}
 .tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:99px;background:var(--acc2);color:#065f46;margin-right:6px}
 #modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;z-index:100}
@@ -124,13 +135,41 @@ const CH=[
   <tr><td><code>ls</code></td><td>列出文件 / list files</td></tr>
   <tr><td><code>cd 路径</code></td><td>切换目录 / change directory</td></tr>
   <tr><td><code>python 文件.py</code></td><td>运行脚本 / run a script</td></tr>
-  <tr><td><code>Ctrl-C</code></td><td>终止卡住的程序 / kill a stuck program</td></tr></table>`},
+  <tr><td><code>Ctrl-C</code></td><td>终止卡住的程序 / kill a stuck program</td></tr></table>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · 路径到底是什么：绝对路径、相对路径、~ 与 ..</summary><div class="ddb">
+  <p class="en">A path is just the address of a folder/file on disk. Absolute paths start at the disk root; relative paths start from where you are standing now (<code>pwd</code>).</p>
+  <p>把磁盘想成一棵树：根部是 <code>/</code>（macOS 的盘根），往下分叉出文件夹。两种"报地址"的方式：</p>
+  <ul>
+  <li><b>绝对路径 absolute path</b>：从根部写全，如 <code>/Users/mzh24/agent/ali/cs50</code>——任何位置都能找到，但很长。</li>
+  <li><b>相对路径 relative path</b>：从"你现在站的位置"（<code>pwd</code> 显示的地方）出发。<code>cd site</code> = 钻进当前目录下的 site；<code>cd ..</code> = 退回上一层；<code>cd ../..</code> 退两层。</li>
+  <li><code>~</code> 是家目录 <code>/Users/mzh24</code> 的缩写：<code>cd ~</code> 一键回家。</li>
+  </ul>
+  <pre><code>pwd                       # /Users/mzh24/agent/ali/cs50    你在这儿
+cd site                   # 相对：钻进 cs50/site
+cd ..                     # 退回 cs50
+cd ~/agent/ali/cs50/site  # ~ 起头也算绝对路径
+ls                        # 列出当前目录内容
+ls ..                     # 列出上一层的内容（不给路径默认"这里"）</code></pre>
+  <p class="pit">⚠️ 新手最常见错觉：以为 <code>cd</code> 成功了其实报错了（要看输出！）；或者用相对路径时站错了地方。执行任何命令前先 <code>pwd</code> 确认"我现在在哪"。</p>
+  </div></details>`},
  {id:"ch0-k2",t:"虚拟环境 .venv / The virtual environment",h:`
   <p>A <strong>virtual environment (虚拟环境)</strong> is an isolated, self-contained Python setup — its own interpreter and its own installed libraries, so experiments never pollute the system Python.</p>
   <pre><code>cd /Users/mzh24/agent/ali/cs50
 source .venv/bin/activate   # prompt shows (.venv) / 提示符出现 (.venv)
 python pytorch_check.py     # run / 运行
-pip install 库名            # install a library / 装新库</code></pre>`},
+pip install 库名            # install a library / 装新库</code></pre>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · 虚拟环境到底隔离了什么：pip 把库装进了哪个 Python？</summary><div class="ddb">
+  <p class="en">A virtual environment is a private copy of Python with its own <code>site-packages</code> folder; <code>pip install</code> inside it only touches that folder, never the system Python.</p>
+  <p>你的 Mac 自带一个"系统 Python"，所有项目共用。如果项目 A 要 torch 2.1、项目 B 要 torch 2.15，都装进系统 Python 就会互相覆盖。虚拟环境的解法：给每个项目<b>复制一套独立的 Python + 独立的库仓库</b>（一个叫 <code>site-packages</code> 的文件夹）：</p>
+  <pre><code>which python              # 看"python 这个命令指向哪个解释器"
+# 不激活时: /usr/bin/python            ← 系统 Python
+source .venv/bin/activate # 激活：本质是把 .venv/bin 插到 PATH 最前面
+which python              # .../cs50/.venv/bin/python   ← 换人了！
+pip install numpy         # 装进 .venv/lib/python3.x/site-packages/，系统毫发无损
+deactivate                # 退出，PATH 恢复原样</code></pre>
+  <p><code>activate</code> 干的事其实很朴素：临时修改一个叫 <b>PATH</b> 的环境变量（系统找命令的搜索顺序表）。把 <code>.venv/bin</code> 排到最前，之后你敲的 <code>python</code>、<code>pip</code> 都优先命中虚拟环境里的版本。提示符显示 <code>(.venv)</code> 只是提醒"现在生效的是谁"。</p>
+  <p class="pit">⚠️ 两大坑：(1) 忘了激活就 <code>pip install</code>——库装到系统里了，虚拟环境里找不到（<code>ModuleNotFoundError</code> 的常见根源）；(2) 判断当前用的是哪个解释器别靠猜，直接 <code>which python</code>。</p>
+  </div></details>`},
  {id:"ch0-k3",t:"REPL 试验场",h:`
   <p><strong>REPL</strong> = Read–Evaluate–Print Loop (读取-求值-打印循环). Type a line, see the result instantly — the fastest way to try out syntax. 终端输入 <code>python</code> 回车进入 <code>&gt;&gt;&gt;</code> 交互模式；<code>exit()</code> 退出。</p>`},
  {id:"ch0-k4",t:"调试三板斧 / Debugging in three moves",h:`
@@ -141,9 +180,45 @@ ex:[]},
 {id:"ch1",num:"第 1 讲",title:"函数与变量 Functions & Variables",big:"第 1 讲打卡",blocks:[
  {id:"ch1-k1",t:"Function 与 Abstraction / Functions and abstraction",h:`
   <p>"A function is like a <strong>box with inputs and an output</strong>: you feed values in (the <strong>arguments (实参)</strong>), it hands a value back (the <strong>return value (返回值)</strong>). You never need to know what's inside to use it."</p>
-  <p>这就是 <strong>abstraction (抽象)</strong> — "the act of simplifying: standing back from the details and working at a higher level"（抛开细节、在更高层面思考）。</p>`},
+  <p>这就是 <strong>abstraction (抽象)</strong> — "the act of simplifying: standing back from the details and working at a higher level"（抛开细节、在更高层面思考）。</p>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · 函数执行到底发生了什么：定义只是"记账"，调用才"跑戏"</summary><div class="ddb">
+  <p class="en"><code>def</code> merely records the recipe under a name; nothing inside runs until you call it with parentheses. Arguments flow in, <code>return</code> hands a value back to the exact call site.</p>
+  <p>新手最常见的误解是"写完 def 代码就执行了"。实际上 <code>def</code> 那一刻 Python 只做一件事：把"名字 → 步骤清单"记到账本上，缩进体里一行都不跑。真正开工是<b>调用</b>那一刻（带括号）：</p>
+  <pre><code>def area(w, h):
+    print(f"area 被调用了: w={w}, h={h}")   # 只有调用时才打印
+    return w * h                            # 结果送回调用处
+
+print("定义完毕，上面什么都没发生")           # 先输出这行！
+result = area(3, 4)      # 此刻才跳进函数：w=3, h=4
+                         # return 12 把 12 送到 result = ... 的位置
+print(result)            # 12</code></pre>
+  <p>调用瞬间四步记住：</p>
+  <ol>
+  <li>跳进函数体，实参按位置装进形参（<code>w=3, h=4</code>；也可按名字 <code>area(h=4, w=3)</code>）。</li>
+  <li>逐行执行，直到 <code>return</code> 或函数体结束。</li>
+  <li><code>return 12</code>：函数结束，12 被"快递"回调用行。</li>
+  <li>没写 return？快递的是 <code>None</code>（见第 7 小节的详解）。</li>
+  </ol>
+  <p class="pit">⚠️ <code>area</code> 和 <code>area()</code> 是两回事：前者是"菜谱本身"（打印显示 <code>&lt;function area&gt;</code>），后者才是"把菜做出来"。忘写括号 = 把菜谱当成菜端上桌。</p>
+  </div></details>`},
  {id:"ch1-k2",t:"Variable 与赋值 / Variables and assignment",h:`
-  <p>"A variable is just a <strong>name that refers to a value</strong> — a label on a box." <code>=</code> 是赋值 assigns，<code>==</code> 才是比较 compares。命名惯例蛇形小写 / naming: snake_case，如 <code>learning_rate</code>。</p>`},
+  <p>"A variable is just a <strong>name that refers to a value</strong> — a label on a box." <code>=</code> 是赋值 assigns，<code>==</code> 才是比较 compares。命名惯例蛇形小写 / naming: snake_case，如 <code>learning_rate</code>。</p>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · 赋值 = 贴标签，不是装盒子：两个名字共享一个对象</summary><div class="ddb">
+  <p class="en">In Python, assignment binds a <em>name</em> to an <em>object</em>. <code>a = b</code> does not copy the value — it writes a second label on the very same object.</p>
+  <p>很多教材说"变量是盒子"，在 Python 里这会误导。<code>a = [1, 2]</code> 实际是：内存里造一个列表对象，再把<b>标签 a 贴上去</b>。<code>b = a</code> 不复制任何东西——只是<b>把标签 b 也贴到同一个列表上</b>：</p>
+  <pre><code>a = [1, 2]
+b = a              # 不是复制！b 和 a 指向同一个列表
+print(a is b)      # True：同一块内存的两个名字
+b.append(3)        # 通过任何一个标签改，都是改那个对象
+print(a)           # [1, 2, 3] ← a 也"变"了！
+c = a.copy()       # 想要独立副本要显式 copy()（或 list(a)、a[:]）
+c.append(99)
+print(a)           # [1, 2, 3] ← c 的改动不影响 a
+x = 5; y = x; y = 10   # 数字不用怕：int/str/tuple 不可变，"改"= 贴新对象
+print(x)               # 5</code></pre>
+  <p>记两条规则就够：<b>(1)</b> <code>=</code> 永远只贴标签、不复制数据；<b>(2)</b> 只有"可变对象"（list、dict，第 3 讲细讲）才有共享修改问题；数字和字符串"改"的时候都是造新对象，天然安全。</p>
+  <p class="pit">⚠️ 这个坑和后面 PyTorch 的"numpy 桥共享内存"、张量视图是同一个思想——名字/视图都只是"看同一块内存的窗口"。学会贴标签模型，那些现象就秒懂。</p>
+  </div></details>`},
  {id:"ch1-k3",t:"input 永远返回字符串 / input always returns a string",h:`
   <p>所以要先 <strong>cast (类型转换)</strong>：<code>int("50")</code>、<code>float("3.14")</code>、<code>str(42)</code>；值非法时 Python raises <code>ValueError</code>。</p>`},
  {id:"ch1-k4",t:"数字与浮点误差 / Numbers and floating-point imprecision",h:`
@@ -153,7 +228,24 @@ ex:[]},
 print(7 / 2)       # 3.5   true division / 真除法
 print(7 // 2)      # 3     floor division / 整除（向下取整）
 print(7 % 2)       # 1     modulo, remainder / 取余（判断奇偶、轮次）
-print(2 ** 10)     # 1024  power / 幂</code></pre>`},
+print(2 ** 10)     # 1024  power / 幂</code></pre>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · 为什么 0.1 + 0.2 ≠ 0.3：二进制小数推导与自救方法</summary><div class="ddb">
+  <p class="en">Computers store decimals in binary; 0.1 has no finite binary form (like 1/3 in decimal), so it is stored approximately — and two approximations don't always add to the approximation of their sum.</p>
+  <p><b>推导</b>：十进制小数是"除以 10 的幂"的和，二进制小数则是"除以 2 的幂"的和。0.1 = 1/10，而 1/10 在二进制里是无限循环小数：</p>
+  <pre><code>0.1 (十进制) = 0.000110011001100…(0011 循环) (二进制)
+就像 1/3 = 0.333333…(3 循环) 在十进制里写不尽
+float64 只存约 15-16 位有效数字 → 存进去的其实是"最接近 0.1 的那个可表示数"
+print(0.1 + 0.2)          # 0.30000000000000004 ← 两个近似值相加，误差露头
+print(0.1 + 0.2 == 0.3)   # False！</code></pre>
+  <p>整数为什么没事？整数在二进制里是精确的（3 就是 11）。所以原则：<b>该用整数的地方用整数</b>（循环次数、样本数），浮点只留给真正的连续量。</p>
+  <pre><code>import math
+# 自救三招：
+print(round(0.1 + 0.2, 10) == 0.3)    # 1. 容忍误差：四舍五入到足够位数
+print(math.isclose(0.1 + 0.2, 0.3))   # 2. 用 isclose 比较（判收敛常用）
+total = sum([0.1] * 10)
+print(f"{total:.2f}")                 # 3. 展示时格式化，别打印裸浮点</code></pre>
+  <p class="pit">⚠️ PyTorch 里同理：float32 只有约 7 位有效数字，比较两个 loss 永远用 <code>&lt;</code>（是否创新低）或 <code>torch.isclose</code>，别用 <code>==</code>。</p>
+  </div></details>`},
  {id:"ch1-k5",t:"f-string 格式化 / f-strings",h:`
   <p>"The F stands for <em>format</em>: it interpolates values — even whole expressions — inside a string."</p>
   <pre><code>p = 0.987654; n = 1234567; x = 3.14159
@@ -161,7 +253,28 @@ print(f"{x:.2f}")       # 2 decimals / 两位小数
 print(f"{n:,}")         # thousands separator / 千分位
 print(f"{p:.1%}")       # percentage / 百分比
 print(f"{'loss':&gt;10}")  # right-align, width 10 / 右对齐、宽 10
-print(f"{2 * 3}")       # 6, expressions allowed / 花括号里可写表达式</code></pre>`},
+print(f"{2 * 3}")       # 6, expressions allowed / 花括号里可写表达式</code></pre>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · <code>:.2f</code> 这串符号怎么读：格式说明符语法一次讲清</summary><div class="ddb">
+  <p class="en">Everything after the colon in an f-string field is a mini-language: <code>[[fill]align][sign][,][width][.precision][type]</code>.</p>
+  <p>冒号后面是一套独立的"格式小语言"，从左到右读：</p>
+  <table>
+  <tr><th>片段</th><th>意思</th><th>例</th></tr>
+  <tr><td><code>&gt;</code> <code>&lt;</code> <code>^</code></td><td>右对齐 / 左对齐 / 居中</td><td><code>f"{'a':&gt;5}"</code> → 右对齐占 5 格</td></tr>
+  <tr><td><code>0</code></td><td>空位填什么（默认空格）</td><td><code>f"{3:05}"</code> → <code>00003</code></td></tr>
+  <tr><td><code>10</code></td><td>总宽度至少几格</td><td><code>f"{7:&gt;10}"</code></td></tr>
+  <tr><td><code>,</code></td><td>千分位</td><td><code>f"{1234567:,}"</code> → <code>1,234,567</code></td></tr>
+  <tr><td><code>.3f</code></td><td>小数点后保留几位（f=定点小数）</td><td><code>f"{1/3:.3f}"</code> → <code>0.333</code></td></tr>
+  <tr><td><code>%</code></td><td>乘 100 加百分号</td><td><code>f"{0.987:.1%}"</code> → <code>98.7%</code></td></tr>
+  <tr><td><code>e</code></td><td>科学计数法</td><td><code>f"{0.00012:.1e}"</code> → <code>1.2e-04</code></td></tr>
+  </table>
+  <pre><code>loss = 0.000123456; n = 1234567
+print(f"loss={loss:.2e}  n={n:,}  acc={0.987:.1%}")
+# loss=1.23e-04  n=1,234,567  acc=98.7%
+# 组合拳：宽度+精度+对齐 —— 官方训练日志的对齐表格就是这么排的
+print(f"{'metric':&gt;10} | {'value':&gt;10}")
+print(f"{'loss':&gt;10} | {loss:&gt;10.4f}")</code></pre>
+  <p class="pit">⚠️ <code>.2f</code> 是<b>四舍五入显示</b>，不改变变量的真实值——打印 0.000 后 loss 可能仍是 0.0004。要真四舍五入数值用 <code>round()</code>。</p>
+  </div></details>`},
  {id:"ch1-k6",t:"字符串不可变 / Strings are immutable",h:`
   <p>"String methods return <em>new</em> strings; the original never changes." 方法可以链式调用 / methods chain nicely:</p>
   <pre><code>s = "  Ada Lovelace  "
@@ -170,9 +283,46 @@ print(s.strip().upper())                  # chained / 链式调用
 print("cs50,python".split(","))           # ['cs50', 'python'] -> list
 print("-".join(["a", "b", "c"]))          # a-b-c
 print("cat" in "catalogue")               # True, substring test / 子串判断
-print("123".isdigit())                    # True</code></pre>`},
+print("123".isdigit())                    # True</code></pre>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · "不可变"的真实含义：方法返回新串，旧串原地不动</summary><div class="ddb">
+  <p class="en">Strings are immutable: no operation ever edits the characters in place — every method hands you back a brand-new string.</p>
+  <p>"不可变 immutable"的精确含义：<b>内存里那串字符一旦造好，永远不变</b>。所有字符串方法都只能"照着旧的造一个新的给你"：</p>
+  <pre><code>s = "  ada "
+print(s.upper())   # "  ADA "  ← 一个新字符串
+print(s)           # "  ada "  ← 旧的纹丝不动！
+s = s.strip().upper()   # 习惯写法：把新串重新贴回 s 这个名字
+print(s)           # "ADA"
+# 等价于两步：tmp = s.strip(); s = tmp.upper()
+
+xs = [3, 1, 2]     # 列表是"可变的"，对比感受：
+xs.sort()          # 在原地改，没有返回值（返回 None）
+print(xs)          # [1, 2, 3]
+s2 = "cba"
+# s2.sort()        # 字符串没有 sort：它不可变，不存在"原地"这回事
+print("".join(sorted(s2)))   # 要新串就得 sorted() 再 join</code></pre>
+  <p>为什么这样设计？字符串到处被引用（函数传参、字典的键），如果任何人都能原地改，一块内存的值会莫名其妙地变。不可变 = 天然安全共享，代价是"每次修改都造新的"。</p>
+  <p class="pit">⚠️ 最高频错误：<code>s.upper()</code> 单独写一行等于什么都没干（新串没接住，直接被丢弃）。凡是字符串方法，一定要 <code>s = s.方法()</code> 或直接使用返回值。</p>
+  </div></details>`},
  {id:"ch1-k7",t:"Side effect 与 None / Side effects and None",h:`
-  <p>"<code>print()</code> does something visible but returns nothing: <code>None</code> means 'no value here'." A function without <code>return</code> gives back <code>None</code>. 没写 return 的函数返回 None。</p>`},
+  <p>"<code>print()</code> does something visible but returns nothing: <code>None</code> means 'no value here'." A function without <code>return</code> gives back <code>None</code>. 没写 return 的函数返回 None。</p>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · print 和 return 的区别：为什么"能打印"不等于"能当值用"</summary><div class="ddb">
+  <p class="en"><code>print</code> is a side effect for humans; <code>return</code> hands a value back to the program. A function that only prints returns <code>None</code>.</p>
+  <p>这是新手第一年的头号混淆。print 是<b>给人看的</b>（往屏幕吐字符），return 是<b>给程序用的</b>（把值交回调用处继续运算）。一个只 print 不 return 的函数，调用表达式的值是 <code>None</code>：</p>
+  <pre><code>def show_double(x):
+    print(x * 2)          # 屏幕上出现 20，但函数没交出任何值
+
+def get_double(x):
+    return x * 2          # 屏幕不出现东西，值交回给调用者
+
+a = show_double(10)       # 打印 20
+print(a)                  # None ← 函数返回值是 None！
+b = get_double(10)        # 无输出
+print(b)                  # 20
+print(get_double(10) + 1) # 21 ← return 的值能直接参与运算
+# show_double(10) + 1     # TypeError！None + 1，None 不是数字</code></pre>
+  <p>判断口诀：<b>"以后还要用这个结果吗？"</b>要 → return；只是让用户看到 → print。两者常同时出现：函数里 return，调用处 print 结果。</p>
+  <p class="pit">⚠️ PyTorch 里同款陷阱：<code>loss.item()</code> 的返回值要接住（<code>v = loss.item()</code>）；<code>model(x)</code> 的输出也要赋值。凡是"函数/方法调用"想留下结果，必须赋给变量或放进表达式。</p>
+  </div></details>`},
  {id:"ch1-k8",t:"Scope 与 main() 惯例 / Scope and the main convention",h:`
   <p>"Variables created inside a function are <strong>local</strong>: they exist only while the function runs." 函数内变量是局部的。</p>
   <pre><code>def main():
@@ -183,7 +333,33 @@ def train(lr=0.001, epochs=10):    # default arguments / 默认参数
     return lr, epochs              # multiple values -> actually a tuple / 多个返回值其实是元组
 
 if __name__ == "__main__":         # entry point by convention / 惯例入口
-    main()</code></pre>`},
+    main()</code></pre>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · 局部变量的生与死：为什么函数里"改不动"外面的变量</summary><div class="ddb">
+  <p class="en">Names created inside a function live in that function's local scope: they are born on call and destroyed on return. Reading outer names works; assigning creates a brand-new local.</p>
+  <p>作用域 scope = "这个名字在哪段代码里有效"。函数每次被调用时开一间<b>临时办公室</b>：里面创建的名字随函数结束全部销毁。规则只有两条：</p>
+  <ol>
+  <li><b>读</b>：函数里可以读外面的名字（先找本地 → 再找全局）。</li>
+  <li><b>写</b>：函数里给名字赋值，一概创建<b>新的本地变量</b>，与外面的同名者无关。</li>
+  </ol>
+  <pre><code>count = 0                 # 全局
+def bump():
+    count = 99            # 规则2：这只是新建了一个"本地 count"
+bump()
+print(count)              # 0 ← 外面的纹丝不动
+
+def add_item():
+    items.append(1)       # 读：找到全局 items，append 改的是同一个列表
+items = []
+add_item(); add_item()
+print(items)              # [1, 1] ← 改"内容"可以，改"标签"不行
+
+def grow():
+    global count          # 明确声明：我要改的就是全局那个
+    count += 1
+grow(); print(count)      # 1</code></pre>
+  <p>注意 <code>add_item</code> 能改列表：因为 <code>items.append(1)</code> 是<b>读</b>全局名字 + 改对象内容，没有发生"赋值"——正是"贴标签"模型的延续。<code>global</code> 能用但尽量别用：函数靠参数进、返回值出，才好测试好复用。这就是 CS50 推 <code>main()</code> 结构的原因：全局只放常量，变量都在函数内流动。</p>
+  <p class="pit">⚠️ 经典报错 <code>UnboundLocalError</code>：函数里写 <code>count = count + 1</code>，Python 看到赋值就把 count 当本地变量，而本地 count 还没造出来就要读它——先读后写又不声明 global，必炸。</p>
+  </div></details>`},
  {id:"ch1-k9",t:"常见坑 / Common pitfalls",h:`
   <table><tr><th>坑 Pitfall</th><th>现象 Symptom</th></tr>
   <tr><td>对 input 结果直接做算术 / arithmetic on input</td><td><code>"5" * 2</code> 得 <code>"55"</code>；必须先 <code>int()</code></td></tr>
@@ -220,9 +396,49 @@ print(report(3, 4))     # 3/4 = 75.0%</code></pre>`}]},
   <p><code>elif</code> = "else if"，只会命中第一个为真的分支 / only the first true branch runs。</p>
   <p><strong>Chained comparison (链式比较)</strong> — Python 让你像英语一样连着写：<code>18 &lt;= age &lt; 60</code>。</p>
   <p><strong>Conditional expression (条件表达式 / 三元)</strong> — 一行装下 if-else / an if-else fused into one line：</p>
-  <pre><code>device = "cuda" if has_gpu else "cpu"</code></pre>`},
+  <pre><code>device = "cuda" if has_gpu else "cpu"</code></pre>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · if/elif/else 只走一条路：顺序错了会发生什么（逐例追踪）</summary><div class="ddb">
+  <p class="en">An if/elif chain evaluates top to bottom and runs <em>only the first</em> true branch — so order isn't cosmetic, it decides the answer.</p>
+  <p>整条链是<b>从上往下逐个问</b>，一旦命中立刻执行并跳过全部剩余分支。用 <code>score=85</code> 追踪正确版和错误版：</p>
+  <pre><code># 正确版：条件从严到宽
+def grade(score):
+    if score &gt;= 90:  return "A"     # 85>=90? 否
+    elif score &gt;= 80: return "B"    # 85>=80? 是 → 返回 B，后面不看了
+    elif score &gt;= 70: return "C"
+    else: return "F"
+
+# 错误版：条件从宽到严
+def grade_wrong(score):
+    if score &gt;= 70:  return "C"     # 85>=70? 是 → 返回 C！
+    elif score &gt;= 80: return "B"    # 永远轮不到：80+ 全被 70 拦截
+    elif score &gt;= 90: return "A"
+    else: return "F"
+print(grade(85), grade_wrong(85))   # B C —— 同输入不同答案</code></pre>
+  <p>规律：<b>更苛刻的条件放前面</b>。因为 ≥90 的学生也都 ≥70、≥80，宽松条件在前会"截胡"。用 else 收尾兜底，保证任何输入都有出口。</p>
+  <p>同样道理解释了 <code>if / if / if</code>（不用 elif）为什么不同——那是三道独立的门，都可能过；elif 链是一道只开一次的门。想"恰好归到一档"用 elif；想"每个条件独立检查"才并列 if。</p>
+  <p class="pit">⚠️ elif 后面的条件不用写"其他"部分：能走到这条分支本身就说明前面都不成立，所以写 <code>elif score &gt;= 80</code> 就够，不必 <code>elif 70 &lt;= score &lt; 90</code>。</p>
+  </div></details>`},
  {id:"ch2-k3",t:"Truthiness 真假值",h:`
-  <p>"Nonzero numbers and nonempty values are <em>truthy</em>; <code>0</code>, <code>""</code>, <code>[]</code>, <code>{}</code> and <code>None</code> are <em>falsy</em> — Python treats them as False. So <code>if xs:</code> means 'if xs is not empty'." 空的、零的都算假，其余都算真。</p>`},
+  <p>"Nonzero numbers and nonempty values are <em>truthy</em>; <code>0</code>, <code>""</code>, <code>[]</code>, <code>{}</code> and <code>None</code> are <em>falsy</em> — Python treats them as False. So <code>if xs:</code> means 'if xs is not empty'." 空的、零的都算假，其余都算真。</p>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · 真假判定表 + 链式比较的展开规则</summary><div class="ddb">
+  <p class="en">Python converts any value to True/False when a condition needs one: numbers → zero is false; sequences → empty is false. And <code>a &lt;= b &lt; c</code> secretly becomes <code>a &lt;= b and b &lt; c</code>.</p>
+  <p><b>判定表（背最左列就够）</b>：</p>
+  <table>
+  <tr><th>值</th><th>bool() 结果</th></tr>
+  <tr><td><code>0</code>, <code>0.0</code></td><td>False</td></tr>
+  <tr><td><code>""</code> <code>[]</code> <code>{}</code> <code>()</code> 空容器</td><td>False</td></tr>
+  <tr><td><code>None</code></td><td>False</td></tr>
+  <tr><td>其余一切（非零数、非空串、有元素的容器）</td><td>True</td></tr>
+  </table>
+  <pre><code>print(bool(0), bool(-1), bool(""), bool("0"), bool(None), bool([]))
+# False True False True False False ← 注意 "0" 是非空字符串 = True！
+xs = [1]
+if xs:                       # 等价于 if len(xs) &gt; 0，Pythonic 惯用
+    print("有数据")
+name = "" or "anonymous"     # or 短路：左边为假才轮到右边 → 给默认值惯用法</code></pre>
+  <p><b>链式比较</b>：<code>18 &lt;= age &lt; 60</code> 展开成 <code>(18 &lt;= age) and (age &lt; 60)</code>——中间的 age 只求值一次，两边都真才为真。语义和数学写法完全一致，这是 Python 的贴心之处。</p>
+  <p class="pit">⚠️ 反过来要小心：<code>if x == 1 or 2</code> 不是链式比较（没有比较符相连），它是 <code>(x == 1) or (2)</code>，而 2 恒为真——详见"or 的求值规则"那篇详解。</p>
+  </div></details>`},
  {id:"ch2-k4",t:"match 语法糖 / match as syntactic sugar",h:`
   <p><strong>syntactic sugar (语法糖)</strong>: "syntax that adds no new power, only readability" — 像其他语言的 switch。</p>
   <pre><code>match command:                  # Python 3.10+
@@ -234,7 +450,23 @@ print(report(3, 4))     # 3/4 = 75.0%</code></pre>`}]},
         print("未知命令")</code></pre>`},
  {id:"ch2-k5",t:"常见坑 / Common pitfalls",h:`
   <ul><li><code>if x == 1 or 2:</code> <strong>永远为真 / always True</strong>！要写 <code>x in (1, 2)</code></li>
-  <li>忘写冒号 / missing colon <code>:</code></li></ul>`},
+  <li>忘写冒号 / missing colon <code>:</code></li></ul>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · <code>if x == 1 or 2</code> 为什么永远为真：or 的求值规则</summary><div class="ddb">
+  <p class="en"><code>or</code> doesn't compare "x against 1 and 2" — it evaluates <code>(x == 1)</code> first, then the bare number <code>2</code>, which is always truthy.</p>
+  <p>一步步看 Python 怎么算 <code>x == 1 or 2</code>（x=5）：</p>
+  <ol>
+  <li>运算符优先级：<code>==</code> 比 <code>or</code> 紧，所以表达式是 <code>(x == 1) or (2)</code>，<b>不是</b> <code>x == (1 or 2)</code>，更不是"x 等于 1 或 2"。</li>
+  <li>算左边 <code>5 == 1</code> → False。</li>
+  <li>or 的规则：左边为假就看右边——右边是<b>光秃秃的数字 2</b>，非零 → 按 truthiness 规则为 True。</li>
+  <li><code>False or True</code> = True。整个条件恒真，无论 x 是几。</li>
+  </ol>
+  <pre><code>x = 5
+print(x == 1 or 2)        # 2 ← 甚至返回的就是那个 2！or 返回"决定结果的那个操作数"
+print(x == 1 or x == 2)   # False ✓ 正确写法一
+print(x in (1, 2))        # False ✓ 正确写法二（推荐，更短更不易错）</code></pre>
+  <p>顺带把 or/and 的完整规则说清（它们返回<b>操作数本身</b>，不是布尔值）：<code>A or B</code> → A 为真返回 A，否则返回 B；<code>A and B</code> → A 为假返回 A，否则返回 B。这让 <code>name = name or "anonymous"</code>（给默认值）成立。</p>
+  <p class="pit">⚠️ 想表达"x 在若干值里"永远用 <code>in</code>：<code>if x in (1, 2):</code>；想表达区间用链式比较 <code>1 &lt;= x &lt; 3</code>。or 串联只该用于连接完整的布尔表达式。</p>
+  </div></details>`},
  {id:"ch2-k6",t:"PyTorch 关联 / PyTorch connection",h:`
   <pre><code>if epoch % 10 == 0:
     lr *= 0.5                                  # learning-rate decay / 学习率衰减
@@ -287,7 +519,18 @@ for i in range(2, 10, 2): # 2 4 6 8  start, stop(不含), step
 for x in xs:              # iterate items directly / 直接遍历元素
     ...
 for i, x in enumerate(xs, start=1):   # index + item / 带序号
-    ...</code></pre>`},
+    ...</code></pre>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · range 三参数怎么读 + for 循环的底层机制</summary><div class="ddb">
+  <p class="en"><code>range(start, stop, step)</code> counts from start, advancing by step, and never reaches stop. A <code>for</code> loop just asks the sequence for items one by one until it runs out.</p>
+  <p>range 的三个参数读成"<b>从几开始、到几为止（不含）、每次跨几</b>"：</p>
+  <pre><code>list(range(5))        # [0,1,2,3,4]        只给 stop：start 默认 0
+list(range(2, 5))     # [2,3,4]            start=2, stop=5（不含！）
+list(range(2, 10, 2)) # [2,4,6,8]          step=2
+list(range(10, 2, -2))# [10,8,6,4]         step 为负 = 倒着数
+list(range(5, 5))     # [] start 已达 stop → 空，循环体一次都不跑</code></pre>
+  <p>for 的底层：Python 对序列反复问"下一个是谁"，问到底就停（迭代器协议，第 0 讲的 <code>__getitem__</code> 思想是它的近亲）。所以 for <b>天然不会差一</b>——该问几次由序列自己决定；会差一的是你手写 <code>while i &lt;= n</code> 还是 <code>&lt; n</code>。另外 range 是<b>惰性</b>的：<code>range(10_000_000)</code> 不占大内存——它不预先造一千万个数字，只记住"起点/终点/步长"三个数。</p>
+  <p class="pit">⚠️ 两个高频坑：(1) <code>for i in range(len(xs))</code> 能用但不 Pythonic——直接 <code>for x in xs</code>，要序号用 <code>enumerate</code>；(2) 死循环救援快捷键 <code>Ctrl-C</code>——写 while 忘了 <code>i += 1</code> 时它救你。</p>
+  </div></details>`},
  {id:"ch3-k2",t:"列表操作 / List operations",h:`
   <pre><code>xs = [3, 1, 2]
 xs.append(4)           # add to the end / 尾部加一个
@@ -297,7 +540,26 @@ last = xs.pop()        # pop and return the last item / 弹出末尾
 xs.sort()              # in-place, returns None! / 原地排序，返回 None！
 top = sorted(xs)       # returns a NEW sorted list / 返回新列表
 # access: xs[0] first, xs[-1] last, len(xs) size / 首个、末个、长度</code></pre>
-  <p>坑 / pitfall：<code>y = xs.sort()</code> 里 y 是 <code>None</code>。</p>`},
+  <p>坑 / pitfall：<code>y = xs.sort()</code> 里 y 是 <code>None</code>。</p>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · sort() 与 sorted()：原地修改 vs 返回新对象（又是贴标签）</summary><div class="ddb">
+  <p class="en"><code>xs.sort()</code> rearranges in place and returns None; <code>sorted(xs)</code> leaves xs untouched and returns a new list. The same "label vs copy" story as assignment.</p>
+  <p>区分的关键是问一句：<b>"改的是谁？返回的是谁？"</b></p>
+  <pre><code>xs = [3, 1, 2]
+r1 = xs.sort()        # 原地改：xs 自己变成 [1,2,3]，返回值是 None
+print(r1)             # None ← y = xs.sort() 拿到的是 None，经典坑
+r2 = sorted(xs)       # 不动 xs，造一个排好序的新列表返回
+xs.append(99)
+print(r2)             # [1, 2, 3] ← 新列表，不受原列表后续变化影响</code></pre>
+  <p>为什么 sort 设计成返回 None？Python 的惯例：<b>原地修改的方法一律返回 None</b>（append/pop/remove/sort 都如此），防止你误以为拿到了副本而漏掉复制。贴标签模型在这里再现：</p>
+  <pre><code>a = [3, 1]
+b = a                 # b 是同一个列表的第二个标签
+b.sort()
+print(a)              # [1, 3] ← a 也"被排序"了，因为只有一份内存
+c = sorted(a)         # sorted 给出真·新列表
+c.append(0)
+print(a, c)           # [1, 3] [0, 1, 3]</code></pre>
+  <p class="pit">⚠️ 逆向坑别踩：<code>xs = xs.sort()</code> 会把 xs 变成 None，随后 <code>for x in xs</code> 直接 TypeError。记口诀：<b>"方法改原地，返回必为 None；函数造新货，原物不受碰"</b>（sorted/min/max/len/sum 都是新货派）。</p>
+  </div></details>`},
  {id:"ch3-k3",t:"字典与计数模板 / Dictionaries and the counting template",h:`
   <p>"A <strong>dictionary (字典)</strong> is a collection of <strong>key–value pairs (键值对)</strong>, like a real dictionary: look up a word (key) to get its definition (value)."</p>
   <pre><code>counts = {}
@@ -307,7 +569,29 @@ for label in labels:
 counts.get(key, default)   # default instead of KeyError / 键不存在给默认值
 "loss" in counts           # key membership / 查键
 for k, v in counts.items():    # keys and values together / 同时遍历键值
-    ...</code></pre>`},
+    ...</code></pre>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · 逐行追踪计数模板：counts[label] = counts.get(label, 0) + 1</summary><div class="ddb">
+  <p class="en">The counting template asks "how many have I seen so far?" (default 0) and writes back one more — every statistics counter you'll ever write is this loop.</p>
+  <p>模板只有一行，但每一轮发生三件事：<b>查 → 加 → 写回</b>。拿 <code>labels = [0, 2, 1, 0, 2, 2]</code> 逐轮追踪（counts 从空字典 {} 开始）：</p>
+  <table>
+  <tr><th>轮次</th><th>label</th><th>查 get(label,0)</th><th>+1 后</th><th>写回后 counts</th></tr>
+  <tr><td>1</td><td>0</td><td>键不存在→0</td><td>1</td><td>{0: 1}</td></tr>
+  <tr><td>2</td><td>2</td><td>键不存在→0</td><td>1</td><td>{0: 1, 2: 1}</td></tr>
+  <tr><td>3</td><td>1</td><td>键不存在→0</td><td>1</td><td>{0: 1, 2: 1, 1: 1}</td></tr>
+  <tr><td>4</td><td>0</td><td>键存在→1</td><td>2</td><td>{0: 2, 2: 1, 1: 1}</td></tr>
+  <tr><td>5</td><td>2</td><td>键存在→1</td><td>2</td><td>{0: 2, 2: 2, 1: 1}</td></tr>
+  <tr><td>6</td><td>2</td><td>键存在→2</td><td>3</td><td>{0: 2, 2: 3, 1: 1}</td></tr>
+  </table>
+  <pre><code>labels = [0, 2, 1, 0, 2, 2]
+counts = {}
+for label in labels:
+    counts[label] = counts.get(label, 0) + 1
+print(counts)   # {0: 2, 1: 1, 2: 3} 与表格一致
+# 为什么不直接 counts[label] += 1？第一次遇到时键还不存在，会 KeyError。
+# .get(k, 0) 的 default 参数正好补上"第一次"的缺口。</code></pre>
+  <p>这个模板能长出无数变体：求最高频 <code>max(counts, key=counts.get)</code>；算占比、求和累加 <code>sums[k] = sums.get(k, 0) + v</code>。本质全是"查旧值 → 算新值 → 写回"。</p>
+  <p class="pit">⚠️ 对比啰嗦版 <code>if label not in counts: counts[label] = 0</code> 再 <code>counts[label] += 1</code>——效果一样但多两行；理解 get 的 default 之后，一行模板就是标准答案。</p>
+  </div></details>`},
  {id:"ch3-k4",t:"元组与嵌套解包 / Tuples and nested unpacking",h:`
   <p>"A <strong>tuple (元组)</strong> is an <strong>immutable (不可变的)</strong> sequence: once created, it cannot change. A function returning several values actually returns a tuple."</p>
   <pre><code>point = (3, 4)      # immutable / 不可变
@@ -316,7 +600,24 @@ x, y = point        # unpacking / 解包
 for (x, y), label in dataset:    # nested unpacking / 嵌套解包，训练循环天天见
     ...</code></pre>`},
  {id:"ch3-k5",t:"break / continue / 嵌套循环 / Nested loops",h:`
-  <p>"The inner loop runs to completion for every single step of the outer loop." <code>break</code> 跳出整个循环 / exits the loop；<code>continue</code> 跳过本轮 / skips to the next iteration。</p>`},
+  <p>"The inner loop runs to completion for every single step of the outer loop." <code>break</code> 跳出整个循环 / exits the loop；<code>continue</code> 跳过本轮 / skips to the next iteration。</p>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · 双重循环的走位表：外层一步、内层一圈；break 只跳一层</summary><div class="ddb">
+  <p class="en">In nested loops the inner loop runs to completion for every single step of the outer loop; <code>break</code> only exits the loop it lives in.</p>
+  <p>把双层循环想成"时钟"：分针（内层）转满一圈，时针（外层）才走一格。3×3 的完整走位表：</p>
+  <pre><code>for i in range(3):        # 外层（时针）
+    for j in range(3):    # 内层（分针）
+        print(i, j)
+# 执行顺序：0,0 0,1 0,2 | 1,0 1,1 1,2 | 2,0 2,1 2,2  → 共 3*3=9 次
+# 总次数 = 外层次数 × 内层次数（100×100 = 一万次，循环里别塞重活）</code></pre>
+  <p>PyTorch 训练循环就是标准的双层：<code>for epoch: for batch:</code>——epoch 走 5 步、每步内 batch 走完整个数据集（比如 938 批），共 4690 次参数更新。</p>
+  <pre><code>for i in range(3):
+    for j in range(3):
+        if j == 1:
+            break         # 只跳出内层！外层照常继续
+    print(f"i={i} 内层结束于 j=1")
+# i=0,1,2 各打印一次 → break 的作用域是"它所在的最近一层循环"</code></pre>
+  <p class="pit">⚠️ 想"双层一起跳出"的两个办法：(1) 用标志变量，break 后在外层再 if + break；(2) 把内层封装成函数，用 return 一步退出。continue 同样只作用于最近一层。</p>
+  </div></details>`},
  {id:"ch3-k6",t:"PyTorch 关联：训练循环骨架 / Training-loop skeleton",h:`
   <pre><code>for epoch in range(epochs):      # outer: one full pass over the data / 外层：整个数据集过一遍
     for x, y in dataloader:      # inner: one batch at a time / 内层：一批一批喂
@@ -364,12 +665,51 @@ except ValueError as e:      # catch only what you expect / 只捕获预期的�
 else:                        # runs when no exception / 没异常才走
     print("OK")
 finally:                     # always runs / 无论如何都执行（收尾用）
-    print("done")</code></pre>`},
+    print("done")</code></pre>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · try/except/else/finally 完整走位图：三种剧本逐行追踪</summary><div class="ddb">
+  <p class="en">else runs only when try succeeded; finally always runs. Trace the three possible scripts and the whole structure becomes predictable.</p>
+  <p>四段的分工：<b>try</b> 放"可能会炸的"；<b>except</b> 接"真的炸了"；<b>else</b> 是"没炸才走的庆功路"（把依赖 try 成功的代码放这里）；<b>finally</b> 是"无论悲喜都走"（收尾清理）。三种剧本：</p>
+  <pre><code>def demo(s):
+    try:
+        n = int(s)              # 剧本在此分岔
+        print("try: 转换成功")
+    except ValueError as e:
+        print(f"except: {e}")
+    else:
+        print("else: 没炸才来")
+    finally:
+        print("finally: 无论如何都到")
+    print("---")
+
+demo("42")
+# try: 转换成功 → else: 没炸才来 → finally   （except 被跳过）
+demo("abc")
+# except: invalid literal... → finally       （else 被跳过）
+# 顺序永远：try(或 except) → else → finally</code></pre>
+  <p>为什么需要 else？——把"只有成功才该做的事"从 try 里挪出去，避免它们自己的异常被同一个 except 误捕。finally 的经典用途：关文件、断连接——就算 except 里又出了新错，它也保证执行。</p>
+  <p class="pit">⚠️ 两个纪律：(1) except 尽量写具体类型，裸 <code>except:</code> 会把拼写错误（NameError）也吞掉，bug 更难找；(2) except 里只处理"你有办法应对"的异常——处理不了就让它继续抛，比假装无事发生好。</p>
+  </div></details>`},
  {id:"ch4-k2",t:"raise 主动抛异常 / Raising your own",h:`
   <p>"Throw your own exception to signal invalid input — <strong>fail early and loudly</strong>, never produce a wrong answer silently." 翻译：在源头尽早、带信息地报错，也不要悄悄产出错误结果。</p>
   <pre><code>def set_lr(value):
     if value &lt;= 0:
-        raise ValueError(f"学习率必须 &gt; 0，得到 {value}")</code></pre>`},
+        raise ValueError(f"学习率必须 &gt; 0，得到 {value}")</code></pre>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · 为什么"大声报错"比"悄悄返回默认值"更专业：fail early, fail loudly</summary><div class="ddb">
+  <p class="en">A silent fallback hides the real problem far away from where it happened; raising at the source makes the bug announce itself with full context.</p>
+  <p>对比两种处理坏输入的方式：</p>
+  <pre><code>def set_lr_quiet(model, value):
+    if value &lt;= 0:
+        value = 0.001          # 悄悄换成默认值
+    model["lr"] = value
+
+def set_lr_loud(model, value):
+    if value &lt;= 0:
+        raise ValueError(f"学习率必须 &gt; 0，得到 {value}")   # 当场翻脸
+    model["lr"] = value</code></pre>
+  <p>quiet 版的问题不在当下，在<b>三天后</b>：训练 8 小时后你发现结果不对劲，回头查日志只看到 lr=0.001——根本想不起是哪个调用点传了负数。错误发生点和被察觉点隔得越远，排查越痛苦。loud 版在<b>案发现场</b>立刻携带完整信息（哪个函数、什么值、期望什么）喊停；调用方的 except 还能决定怎么补救（重试、给提示、记日志）。</p>
+  <p>使用准则一句话：<b>"这个坏输入我有办法自动纠正吗？"</b>有且无害（比如给空名字填 "anonymous"）→ 悄悄纠正；没有 → 立刻 raise，把决定权交给调用方。</p>
+  <p class="pit">⚠️ raise 的信息是写给你未来自己的：带上参数值和期望，<code>raise ValueError(f"...{value}")</code> 永远优于干巴巴的 <code>raise ValueError()</code>。PyTorch 源码成千上万的报错都这么写——这正是第 4.4 节那些报错能"自解释"的原因。</p>
+  </div></details>`},
  {id:"ch4-k3",t:"Traceback 阅读法与异常表 / Reading tracebacks; exception table",h:`
   <p>"Read it <strong>from the bottom up</strong>: the last line tells you <em>what</em> went wrong; the lines above tell you <em>where</em>." 自下而上读：最后一行说出了什么事，上面说在哪里。</p>
   <table><tr><th>异常</th><th>典型触发 Typical trigger</th></tr>
@@ -379,7 +719,25 @@ finally:                     # always runs / 无论如何都执行（收尾用�
   <tr><td><code>IndexError</code></td><td><code>xs[10]</code> 越界 / out of range</td></tr>
   <tr><td><code>KeyError</code></td><td>字典缺键 / missing key</td></tr>
   <tr><td><code>ZeroDivisionError</code></td><td><code>1 / 0</code></td></tr>
-  <tr><td><code>ModuleNotFoundError</code></td><td>库没装或没 import</td></tr></table>`},
+  <tr><td><code>ModuleNotFoundError</code></td><td>库没装或没 import</td></tr></table>
+  <details class="dd"><summary>🔍 疑难详解 Deep dive · 真实 Traceback 逐行精读：从最后一行读回案发第一线</summary><div class="ddb">
+  <p class="en">Read a traceback bottom-up: the last line names the exception and message; the lines above are the call stack, with the earliest line of <em>your</em> code being where to start fixing.</p>
+  <p>拿一段真实报错示范读法（故意制造的 IndexError）：</p>
+  <pre><code>Traceback (most recent call last):        # 标题：以下是调用链，最近的在最后
+  File "train.py", line 12, in &lt;module&gt;   # 第 1 站：你直接运行的文件
+    acc = evaluate(preds, labels)
+  File "train.py", line 5, in evaluate    # 第 2 站：evaluate 被它调进来
+    total = preds[len(preds)]             # 第 3 站：真正炸掉的行
+IndexError: list index out of range       # ← 先读这行！</code></pre>
+  <p>阅读四步法：</p>
+  <ol>
+  <li><b>最后一行</b>：异常类型（IndexError）+ 一句话诊断（下标越界）。</li>
+  <li><b>往上找你的文件</b>：调用链可能穿过库文件，锁定第一条属于你自己代码的 <code>File "..."</code>。</li>
+  <li><b>看那行代码</b>：这里是 <code>preds[len(preds)]</code>——列表下标最大是 len-1，len 本身必然越界。</li>
+  <li><b>修复后重跑</b>，让下一条报错（如果还有）继续指路。</li>
+  </ol>
+  <p class="pit">⚠️ 调用链从下往上读是"案发倒推"：最底下才是爆炸点，上面全是"谁把它引爆的"。另外异常类型看准了再动手：<code>TypeError</code>（类型不对）和 <code>ValueError</code>（类型对但值不行）指向完全不同的修法——这正是上面那张表存在的意义。</p>
+  </div></details>`},
  {id:"ch4-k4",t:"PyTorch 报错对照表 / Real-world PyTorch error map",h:`
   <table><tr><th>报错片段 Error snippet</th><th>真实原因 Real cause</th></tr>
   <tr><td><code>mat1 and mat2 shapes cannot be multiplied</code></td><td>相邻两层维度接不上 / layer dims don't match</td></tr>
